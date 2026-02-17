@@ -40,6 +40,7 @@ VivaVoz fills that gap. Built with .NET 10 + Avalonia UI for a polished, cross-p
 | 0.13 | 2026-02-17 | Andre Vianna | Decision: No analytics/telemetry in MVP. 100% local is the brand promise. Revisit in v2 (always opt-in, always disableable). |
 | 0.14 | 2026-02-17 | Lola Lovelace | Fixed section numbering. Added Recording Status field. No concurrent recordings. Clarified hotkey conflict UX. Removed stale open question. |
 | 0.15 | 2026-02-17 | Andre Vianna / Lola Lovelace | Renamed Dito → VivaVoz. Trademark conflict with existing Windows voice-to-text product at getdito.com. New name from Portuguese "viva" (alive) + "voz" (voice). Domain: vivavoz.app. Accessibility deferred to v2. |
+| 0.16 | 2026-02-17 | Lola Lovelace | Fixed domain refs (vivavoz-app.com → vivavoz.app). Accessibility explicitly marked as v2 in NFR section. Final review grade: A. |
 
 ---
 
@@ -172,9 +173,10 @@ Mac users have multiple polished tools for this. **Windows users have nothing go
 
 ARM64 support: stretch goal for v1, likely v2.
 
-#### Accessibility
+#### Accessibility (v2 — not in MVP)
 - Keyboard-navigable UI
 - Screen reader compatible
+- Full accessibility audit deferred to v2. MVP prioritizes core functionality.
 
 ## 5. Error Handling Strategy
 
@@ -340,8 +342,8 @@ All dependencies are MIT licensed — free for commercial use, no restrictions.
 
 | Document | Where | When |
 |----------|-------|------|
-| **Privacy Policy** | vivavoz-app.com/privacy | Required for Microsoft Store submission. Before launch. |
-| **Terms of Use / EULA** | Embedded in installer + vivavoz-app.com/terms | Before launch. |
+| **Privacy Policy** | vivavoz.app/privacy | Required for Microsoft Store submission. Before launch. |
+| **Terms of Use / EULA** | Embedded in installer + vivavoz.app/terms | Before launch. |
 
 ### Privacy Policy Summary
 
@@ -362,7 +364,7 @@ Standard $5 one-time purchase. No warranty. No liability. Non-transferable licen
 
 ### Direct Download Update Flow
 
-1. On launch, VivaVoz checks vivavoz-app.com/version.json for latest version (lightweight HTTP call)
+1. On launch, VivaVoz checks vivavoz.app/version.json for latest version (lightweight HTTP call)
 2. If newer version available → non-intrusive banner: "Update available (v1.1). [Update Now] [Later]"
 3. **Auto-update setting (off by default):** User can enable in Settings → "Automatically download and install updates"
 4. When enabled: download happens in background, installs on next app restart
@@ -389,13 +391,13 @@ Settings
 | Channel | Implementation | Purpose |
 |---------|---------------|---------|
 | **In-app Help** | Built-in Getting Started + FAQ page | First stop — reduces support volume |
-| **Product Website** | vivavoz-app.com — landing page, FAQ, download links | Public face, purchase, documentation |
+| **Product Website** | vivavoz.app — landing page, FAQ, download links | Public face, purchase, documentation |
 | **GitHub Issues** | Public repo with issue templates (bug report, feature request) | Transparent, community-driven, power users |
 | **Contact Email** | support@casuloailabs.com | Non-technical users, private issues |
 
 **User support flow:**
 1. Problem → **In-app FAQ** (immediate, no internet needed)
-2. Still stuck → **vivavoz-app.com/faq** (more detailed, searchable)
+2. Still stuck → **vivavoz.app/faq** (more detailed, searchable)
 3. Bug or feature request → **GitHub Issues** (templates guide the report)
 4. Private or non-technical → **Email**
 
@@ -432,8 +434,8 @@ Settings
 1. **Whisper model distribution** — Bundle smallest model (tiny). Larger models download on demand via in-app model manager.
 2. **Audio format** — Default export: MP3. Configurable dropdown: MP3, WAV, OGG.
 3. **Pricing** — $5 one-time. Gain clients first.
-4. **Distribution** — Both Microsoft Store and direct download (vivavoz-app.com).
-5. **Domain** — vivavoz-app.com (available, to be registered).
+4. **Distribution** — Both Microsoft Store and direct download (vivavoz.app).
+5. **Domain** — vivavoz.app (available, to be registered).
 
 ## 16. Open Questions
 

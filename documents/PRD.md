@@ -28,6 +28,7 @@ Dito fills that gap. Built with .NET 10 + Blazor Hybrid for portability. MVP in 
 | 0.1 | 2026-02-17 | Lola Lovelace | Initial PRD — MVP scope, tech stack, data model |
 | 0.2 | 2026-02-17 | Andre Vianna / Lola Lovelace | Resolved open questions: pricing ($5), format (MP3 default), distribution (Store + direct), Whisper bundling (tiny + on-demand) |
 | 0.3 | 2026-02-17 | Lola Lovelace | Added executive summary, change log, index. Casulo document standard. |
+| 0.4 | 2026-02-17 | Andre Vianna / Lola Lovelace | Tech stack changed: Blazor Hybrid → Avalonia UI (MIT, prettier, cross-platform). |
 
 ---
 
@@ -159,8 +160,8 @@ Mac users have multiple polished tools for this. **Windows users have nothing go
 
 | Component | Technology |
 |-----------|-----------|
-| **Framework** | .NET 10 + Blazor Hybrid (MAUI) |
-| **UI** | Blazor components + MudBlazor or FluentUI |
+| **Framework** | .NET 10 + Avalonia UI (MIT, cross-platform) |
+| **UI** | Avalonia MVVM + Fluent theme |
 | **Transcription** | whisper.cpp via Whisper.net (P/Invoke) |
 | **Audio Capture** | NAudio or platform APIs |
 | **Storage** | SQLite (via EF Core) |

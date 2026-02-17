@@ -15,7 +15,7 @@ Dito is a $5 Windows desktop app that captures voice, transcribes it locally usi
 
 The market opportunity: Mac has 5+ polished voice-to-text tools (SuperWhisper, Auto, Wispr Flow). Windows has nothing comparable at an affordable price point. Wispr Flow ($81M funded) is entering Windows but is cloud-only and subscription-based, leaving the local-first, privacy-respecting niche wide open.
 
-Dito fills that gap. Built with .NET 10 + Blazor Hybrid for portability. MVP in 4 weeks. $5 impulse buy. Microsoft Store + direct download.
+Dito fills that gap. Built with .NET 10 + Avalonia UI for a polished, cross-platform experience. MVP in 4 weeks. $5 impulse buy. Microsoft Store + direct download.
 
 *Dito e feito — said and done.*
 
@@ -32,6 +32,7 @@ Dito fills that gap. Built with .NET 10 + Blazor Hybrid for portability. MVP in 
 | 0.5 | 2026-02-17 | Andre Vianna / Lola Lovelace | Added storage strategy: file system layout, principles, expanded data model with InstalledModel entity. |
 | 0.6 | 2026-02-17 | Andre Vianna / Lola Lovelace | Detailed hardware requirements per Whisper model size (disk, RAM, CPU, speed). Three tiers: minimum, recommended, power user. |
 | 0.7 | 2026-02-17 | Andre Vianna / Lola Lovelace | Added support strategy: in-app FAQ, website, GitHub Issues, email. User support flow defined. |
+| 0.8 | 2026-02-17 | Lola Lovelace | Fixed stale Blazor refs → Avalonia. Trimmed MVP: cut tags, batch export, manual language override, multi-sort, high contrast theme, exports folder. |
 
 ---
 
@@ -92,7 +93,6 @@ Mac users have multiple polished tools for this. **Windows users have nothing go
 - On-device transcription using Whisper (no cloud)
 - Multiple model sizes (tiny → large) — user selects based on speed/accuracy preference
 - Language auto-detection
-- Manual language selection override
 - Transcription happens automatically after recording stops
 
 #### F3: Recording Management (CRUD)
@@ -102,13 +102,12 @@ Mac users have multiple polished tools for this. **Windows users have nothing go
 - Edit transcript text manually
 - Delete recordings
 - Search recordings by transcript content
-- Sort by date, duration, or title
+- Sorted by date (newest first)
 
 #### F4: Export
-- Export as audio file (default: MP3; options: WAV, OGG)
-- Export as text file (TXT/MD)
+- Export as audio file (default: MP3; options: WAV, OGG) via standard Save dialog
+- Export as text file (TXT/MD) via standard Save dialog
 - Copy transcript to clipboard (one-click)
-- Batch export selected recordings
 
 ### 4.2 Non-Functional Requirements
 
@@ -163,7 +162,6 @@ ARM64 support: stretch goal for v1, likely v2.
 #### Accessibility
 - Keyboard-navigable UI
 - Screen reader compatible
-- High contrast theme support
 
 ## 5. User Interface
 
@@ -220,8 +218,6 @@ Dito uses `%LOCALAPPDATA%/Dito/` as its root. SQLite holds structured data; the 
 │   ├── whisper-tiny.bin      ← bundled with installer
 │   ├── whisper-base.bin      ← downloaded on demand
 │   └── whisper-large.bin     ← downloaded on demand
-└── exports/
-    └── (user-exported files land here by default, configurable)
 ```
 
 **Principles:**
@@ -229,7 +225,7 @@ Dito uses `%LOCALAPPDATA%/Dito/` as its root. SQLite holds structured data; the 
 - **Monthly subfolders** — prevents flat directories with thousands of files
 - **GUID filenames** — no collisions, no special character issues
 - **Models are separate** — large binaries isolated, easy to manage/delete
-- **Exports are separate** — user-facing output distinct from internal storage
+- **Exports use standard Save dialog** — user picks destination, no dedicated folder
 - **Delete = DB row + audio file** — cascading cleanup, no orphans
 - **Configurable root** — user can move the entire Dito folder (e.g. to a larger drive)
 
@@ -246,8 +242,7 @@ Recording
 ├── CreatedAt (DateTime UTC)
 ├── UpdatedAt (DateTime UTC)
 ├── WhisperModel (which model was used for transcription)
-├── FileSize (bytes — for storage management)
-└── Tags (optional, for organization)
+└── FileSize (bytes — for storage management)
 
 Settings
 ├── HotkeyConfig (key combo + mode: push-to-talk or toggle)
@@ -255,7 +250,6 @@ Settings
 ├── AudioInputDevice (system default or specific device)
 ├── StoragePath (root folder, default: %LOCALAPPDATA%/Dito)
 ├── ExportFormat (default: MP3, options: WAV, OGG)
-├── ExportPath (default: {StoragePath}/exports)
 ├── Theme (light/dark/system)
 └── Language (default: auto-detect, or fixed language)
 
@@ -302,7 +296,7 @@ InstalledModel
 - Streaming transcription (real-time as you speak)
 
 ### v4: Platform Expansion
-- Web companion (Blazor WebAssembly)
+- Web companion (Avalonia WASM or standalone web app)
 - Mac support (via MAUI)
 - Team/enterprise features
 

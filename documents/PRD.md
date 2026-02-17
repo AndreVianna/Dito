@@ -33,6 +33,7 @@ Dito fills that gap. Built with .NET 10 + Avalonia UI for a polished, cross-plat
 | 0.6 | 2026-02-17 | Andre Vianna / Lola Lovelace | Detailed hardware requirements per Whisper model size (disk, RAM, CPU, speed). Three tiers: minimum, recommended, power user. |
 | 0.7 | 2026-02-17 | Andre Vianna / Lola Lovelace | Added support strategy: in-app FAQ, website, GitHub Issues, email. User support flow defined. |
 | 0.8 | 2026-02-17 | Lola Lovelace | Fixed stale Blazor refs → Avalonia. Trimmed MVP: cut tags, batch export, manual language override, multi-sort, high contrast theme, exports folder. |
+| 0.9 | 2026-02-17 | Andre Vianna / Lola Lovelace | Added first-run onboarding flow (4-step wizard). Subject to user testing refinement. |
 
 ---
 
@@ -42,14 +43,15 @@ Dito fills that gap. Built with .NET 10 + Avalonia UI for a polished, cross-plat
 2. [Problem Statement](#2-problem-statement)
 3. [Target Users](#3-target-users)
 4. [MVP Scope (v1.0)](#4-mvp-scope-v10)
-5. [User Interface](#5-user-interface)
-6. [Tech Stack](#6-tech-stack)
-7. [Data Model & Storage Strategy](#7-data-model--storage-strategy)
-8. [Support Strategy](#8-support-strategy)
-9. [Future Versions](#9-future-versions-out-of-mvp-scope)
-10. [Success Metrics](#10-success-metrics)
-11. [Decisions Made](#11-decisions-made)
-12. [Open Questions](#12-open-questions)
+5. [First-Run Experience](#5-first-run-experience)
+6. [User Interface](#6-user-interface)
+7. [Tech Stack](#7-tech-stack)
+8. [Data Model & Storage Strategy](#8-data-model--storage-strategy)
+9. [Support Strategy](#9-support-strategy)
+10. [Future Versions](#10-future-versions-out-of-mvp-scope)
+11. [Success Metrics](#11-success-metrics)
+12. [Decisions Made](#12-decisions-made)
+13. [Open Questions](#13-open-questions)
 
 ---
 
@@ -163,7 +165,20 @@ ARM64 support: stretch goal for v1, likely v2.
 - Keyboard-navigable UI
 - Screen reader compatible
 
-## 5. User Interface
+## 5. First-Run Experience
+
+On first launch, Dito guides the user through a 4-step onboarding wizard:
+
+1. **Welcome** — "Hi, I'm Dito. I turn your voice into text, right on your machine." Brief value prop, no fluff.
+2. **Model Selection** — Choose Tiny (fastest, bundled) or download Base (better accuracy). Progress bar for download. User can always change later in Settings.
+3. **Test Recording** — "Say something!" Button records a short clip → transcribes → shows the result. User sees Dito work before they need it. Their first recording is already saved.
+4. **Hotkey Setup** — Show default hotkey, let them customize. Explain push-to-talk vs toggle. Done.
+
+After the wizard, user lands on the main screen with their test recording visible.
+
+*Note: This flow is a starting point. Will be refined based on real user testing.*
+
+## 6. User Interface
 
 ### 5.1 System Tray
 - Dito lives in the system tray when not actively in use
@@ -188,7 +203,7 @@ ARM64 support: stretch goal for v1, likely v2.
 - Export defaults (format, output directory)
 - Theme (light/dark/system)
 
-## 6. Tech Stack
+## 7. Tech Stack
 
 | Component | Technology |
 |-----------|-----------|
@@ -200,7 +215,7 @@ ARM64 support: stretch goal for v1, likely v2.
 | **Audio Playback** | NAudio |
 | **Installer** | MSIX or WiX |
 
-## 7. Data Model & Storage Strategy
+## 8. Data Model & Storage Strategy
 
 ### 7.1 File System Layout
 
@@ -261,7 +276,7 @@ InstalledModel
 └── IsDefault (bool)
 ```
 
-## 8. Support Strategy
+## 9. Support Strategy
 
 ### MVP (v1)
 
@@ -283,7 +298,7 @@ InstalledModel
 - Knowledge base / docs site
 - In-app feedback widget
 
-## 9. Future Versions (Out of MVP Scope)
+## 10. Future Versions (Out of MVP Scope)
 
 ### v2: AI Cleanup + Community
 - BYOK (Bring Your Own Key) — OpenAI, Anthropic, Gemini
@@ -300,13 +315,13 @@ InstalledModel
 - Mac support (via MAUI)
 - Team/enterprise features
 
-## 10. Success Metrics
+## 11. Success Metrics
 
 - **Build:** Working MVP in 4 weeks
 - **Validate:** 100 beta users in first month
 - **Revenue:** First paid download within 6 weeks of launch ($5 one-time, impulse price point)
 
-## 11. Decisions Made
+## 12. Decisions Made
 
 1. **Whisper model distribution** — Bundle smallest model (tiny). Larger models download on demand via in-app model manager.
 2. **Audio format** — Default export: MP3. Configurable dropdown: MP3, WAV, OGG.
@@ -314,7 +329,7 @@ InstalledModel
 4. **Distribution** — Both Microsoft Store and direct download (dito-app.com).
 5. **Domain** — dito-app.com (available, to be registered).
 
-## 12. Open Questions
+## 13. Open Questions
 
 1. **Name trademark** — Need to check "Dito" availability
 

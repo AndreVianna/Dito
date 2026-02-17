@@ -35,6 +35,7 @@ Dito fills that gap. Built with .NET 10 + Avalonia UI for a polished, cross-plat
 | 0.8 | 2026-02-17 | Lola Lovelace | Fixed stale Blazor refs → Avalonia. Trimmed MVP: cut tags, batch export, manual language override, multi-sort, high contrast theme, exports folder. |
 | 0.9 | 2026-02-17 | Andre Vianna / Lola Lovelace | Added first-run onboarding flow (4-step wizard). Subject to user testing refinement. |
 | 0.10 | 2026-02-17 | Andre Vianna / Lola Lovelace | Added error handling strategy: 3 severity levels, 5 principles, known scenarios table. Strategy-first, not list-first. |
+| 0.11 | 2026-02-17 | Lola Lovelace | Added legal & licensing: all deps MIT, privacy policy/EULA requirements for Store submission. |
 
 ---
 
@@ -49,11 +50,12 @@ Dito fills that gap. Built with .NET 10 + Avalonia UI for a polished, cross-plat
 7. [User Interface](#7-user-interface)
 8. [Tech Stack](#8-tech-stack)
 9. [Data Model & Storage Strategy](#9-data-model--storage-strategy)
-10. [Support Strategy](#10-support-strategy)
-11. [Future Versions](#11-future-versions-out-of-mvp-scope)
-12. [Success Metrics](#12-success-metrics)
-13. [Decisions Made](#13-decisions-made)
-14. [Open Questions](#14-open-questions)
+10. [Legal & Licensing](#10-legal--licensing)
+11. [Support Strategy](#11-support-strategy)
+12. [Future Versions](#12-future-versions-out-of-mvp-scope)
+13. [Success Metrics](#13-success-metrics)
+14. [Decisions Made](#14-decisions-made)
+15. [Open Questions](#15-open-questions)
 
 ---
 
@@ -311,7 +313,37 @@ InstalledModel
 └── IsDefault (bool)
 ```
 
-## 10. Support Strategy
+## 10. Legal & Licensing
+
+### Open Source Dependencies
+
+All dependencies are MIT licensed — free for commercial use, no restrictions.
+
+| Dependency | License | Purpose |
+|-----------|---------|---------|
+| whisper.cpp | MIT | Whisper inference engine |
+| Whisper.net | MIT | .NET bindings for whisper.cpp |
+| NAudio | MIT | Audio capture and playback |
+| Avalonia UI | MIT | UI framework |
+| EF Core | MIT | SQLite ORM |
+| SQLite | Public Domain | Database |
+
+### Required Documents
+
+| Document | Where | When |
+|----------|-------|------|
+| **Privacy Policy** | dito-app.com/privacy | Required for Microsoft Store submission. Before launch. |
+| **Terms of Use / EULA** | Embedded in installer + dito-app.com/terms | Before launch. |
+
+### Privacy Policy Summary
+
+Dito processes everything locally. No data leaves the user's machine. No accounts. No telemetry. No analytics in v1. If opt-in analytics are added in v2, the policy will be updated and users will be prompted to consent.
+
+### EULA Summary
+
+Standard $5 one-time purchase. No warranty. No liability. Non-transferable license. User owns their recordings and transcripts — we claim no rights to their content.
+
+## 11. Support Strategy
 
 ### MVP (v1)
 
@@ -333,7 +365,7 @@ InstalledModel
 - Knowledge base / docs site
 - In-app feedback widget
 
-## 11. Future Versions (Out of MVP Scope)
+## 12. Future Versions (Out of MVP Scope)
 
 ### v2: AI Cleanup + Community
 - BYOK (Bring Your Own Key) — OpenAI, Anthropic, Gemini
@@ -350,13 +382,13 @@ InstalledModel
 - Mac support (via MAUI)
 - Team/enterprise features
 
-## 12. Success Metrics
+## 13. Success Metrics
 
 - **Build:** Working MVP in 4 weeks
 - **Validate:** 100 beta users in first month
 - **Revenue:** First paid download within 6 weeks of launch ($5 one-time, impulse price point)
 
-## 13. Decisions Made
+## 14. Decisions Made
 
 1. **Whisper model distribution** — Bundle smallest model (tiny). Larger models download on demand via in-app model manager.
 2. **Audio format** — Default export: MP3. Configurable dropdown: MP3, WAV, OGG.
@@ -364,7 +396,7 @@ InstalledModel
 4. **Distribution** — Both Microsoft Store and direct download (dito-app.com).
 5. **Domain** — dito-app.com (available, to be registered).
 
-## 14. Open Questions
+## 15. Open Questions
 
 1. **Name trademark** — Need to check "Dito" availability
 

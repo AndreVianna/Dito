@@ -36,6 +36,7 @@ Dito fills that gap. Built with .NET 10 + Avalonia UI for a polished, cross-plat
 | 0.9 | 2026-02-17 | Andre Vianna / Lola Lovelace | Added first-run onboarding flow (4-step wizard). Subject to user testing refinement. |
 | 0.10 | 2026-02-17 | Andre Vianna / Lola Lovelace | Added error handling strategy: 3 severity levels, 5 principles, known scenarios table. Strategy-first, not list-first. |
 | 0.11 | 2026-02-17 | Lola Lovelace | Added legal & licensing: all deps MIT, privacy policy/EULA requirements for Store submission. |
+| 0.12 | 2026-02-17 | Andre Vianna / Lola Lovelace | Added update strategy: Store auto, direct download opt-in auto-update (off by default). |
 
 ---
 
@@ -51,11 +52,12 @@ Dito fills that gap. Built with .NET 10 + Avalonia UI for a polished, cross-plat
 8. [Tech Stack](#8-tech-stack)
 9. [Data Model & Storage Strategy](#9-data-model--storage-strategy)
 10. [Legal & Licensing](#10-legal--licensing)
-11. [Support Strategy](#11-support-strategy)
-12. [Future Versions](#12-future-versions-out-of-mvp-scope)
-13. [Success Metrics](#13-success-metrics)
-14. [Decisions Made](#14-decisions-made)
-15. [Open Questions](#15-open-questions)
+11. [Update Strategy](#11-update-strategy)
+12. [Support Strategy](#12-support-strategy)
+13. [Future Versions](#13-future-versions-out-of-mvp-scope)
+14. [Success Metrics](#14-success-metrics)
+15. [Decisions Made](#15-decisions-made)
+16. [Open Questions](#16-open-questions)
 
 ---
 
@@ -343,7 +345,38 @@ Dito processes everything locally. No data leaves the user's machine. No account
 
 Standard $5 one-time purchase. No warranty. No liability. Non-transferable license. User owns their recordings and transcripts — we claim no rights to their content.
 
-## 11. Support Strategy
+## 11. Update Strategy
+
+### Distribution Channels
+
+| Channel | Update Mechanism | User Action |
+|---------|-----------------|-------------|
+| **Microsoft Store** | Handled by Store automatically | None — seamless |
+| **Direct download** | In-app update check on launch | User opts in via Settings |
+
+### Direct Download Update Flow
+
+1. On launch, Dito checks dito-app.com/version.json for latest version (lightweight HTTP call)
+2. If newer version available → non-intrusive banner: "Update available (v1.1). [Update Now] [Later]"
+3. **Auto-update setting (off by default):** User can enable in Settings → "Automatically download and install updates"
+4. When enabled: download happens in background, installs on next app restart
+5. When disabled: banner notification only, user downloads manually
+
+### Principles
+
+- **Never forced.** User always has the choice to skip or delay.
+- **Auto-update is opt-in.** Off by default. Respects user control.
+- **Update check is lightweight.** Single JSON fetch, no heavy payloads until user consents.
+- **No update during recording.** If a recording is active, updates wait.
+
+### Settings Entity Addition
+
+```
+Settings
+└── AutoUpdate (bool, default: false)
+```
+
+## 12. Support Strategy
 
 ### MVP (v1)
 
@@ -365,7 +398,7 @@ Standard $5 one-time purchase. No warranty. No liability. Non-transferable licen
 - Knowledge base / docs site
 - In-app feedback widget
 
-## 12. Future Versions (Out of MVP Scope)
+## 13. Future Versions (Out of MVP Scope)
 
 ### v2: AI Cleanup + Community
 - BYOK (Bring Your Own Key) — OpenAI, Anthropic, Gemini
@@ -382,13 +415,13 @@ Standard $5 one-time purchase. No warranty. No liability. Non-transferable licen
 - Mac support (via MAUI)
 - Team/enterprise features
 
-## 13. Success Metrics
+## 14. Success Metrics
 
 - **Build:** Working MVP in 4 weeks
 - **Validate:** 100 beta users in first month
 - **Revenue:** First paid download within 6 weeks of launch ($5 one-time, impulse price point)
 
-## 14. Decisions Made
+## 15. Decisions Made
 
 1. **Whisper model distribution** — Bundle smallest model (tiny). Larger models download on demand via in-app model manager.
 2. **Audio format** — Default export: MP3. Configurable dropdown: MP3, WAV, OGG.
@@ -396,7 +429,7 @@ Standard $5 one-time purchase. No warranty. No liability. Non-transferable licen
 4. **Distribution** — Both Microsoft Store and direct download (dito-app.com).
 5. **Domain** — dito-app.com (available, to be registered).
 
-## 15. Open Questions
+## 16. Open Questions
 
 1. **Name trademark** — Need to check "Dito" availability
 

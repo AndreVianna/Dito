@@ -1,7 +1,7 @@
-# Dito — Product Requirements Document
+# VivaVoz — Product Requirements Document
 
-**Product:** Dito
-**Tagline:** Said and done.
+**Product:** VivaVoz
+**Tagline:** Your voice, alive.
 **Version:** 1.0 (MVP)
 **Date:** 2026-02-17
 **Authors:** Andre Vianna (Founder), Lola Lovelace (Product Lead)
@@ -11,13 +11,13 @@
 
 ## Executive Summary
 
-Dito is a $5 Windows desktop app that captures voice, transcribes it locally using Whisper, and exports recordings as audio or text. No cloud. No subscription. No account needed.
+VivaVoz is a $5 Windows desktop app that captures voice, transcribes it locally using Whisper, and exports recordings as audio or text. No cloud. No subscription. No account needed.
 
 The market opportunity: Mac has 5+ polished voice-to-text tools (SuperWhisper, Auto, Wispr Flow). Windows has nothing comparable at an affordable price point. Wispr Flow ($81M funded) is entering Windows but is cloud-only and subscription-based, leaving the local-first, privacy-respecting niche wide open.
 
-Dito fills that gap. Built with .NET 10 + Avalonia UI for a polished, cross-platform experience. MVP in 4 weeks. $5 impulse buy. Microsoft Store + direct download.
+VivaVoz fills that gap. Built with .NET 10 + Avalonia UI for a polished, cross-platform experience. MVP in 4 weeks. $5 impulse buy. Microsoft Store + direct download.
 
-*Dito e feito — said and done.*
+*Your voice, alive.* 🎙️
 
 ---
 
@@ -38,6 +38,8 @@ Dito fills that gap. Built with .NET 10 + Avalonia UI for a polished, cross-plat
 | 0.11 | 2026-02-17 | Lola Lovelace | Added legal & licensing: all deps MIT, privacy policy/EULA requirements for Store submission. |
 | 0.12 | 2026-02-17 | Andre Vianna / Lola Lovelace | Added update strategy: Store auto, direct download opt-in auto-update (off by default). |
 | 0.13 | 2026-02-17 | Andre Vianna | Decision: No analytics/telemetry in MVP. 100% local is the brand promise. Revisit in v2 (always opt-in, always disableable). |
+| 0.14 | 2026-02-17 | Lola Lovelace | Fixed section numbering. Added Recording Status field. No concurrent recordings. Clarified hotkey conflict UX. Removed stale open question. |
+| 0.15 | 2026-02-17 | Andre Vianna / Lola Lovelace | Renamed Dito → VivaVoz. Trademark conflict with existing Windows voice-to-text product at getdito.com. New name from Portuguese "viva" (alive) + "voz" (voice). Domain: vivavoz.app. Accessibility deferred to v2. |
 
 ---
 
@@ -64,9 +66,9 @@ Dito fills that gap. Built with .NET 10 + Avalonia UI for a polished, cross-plat
 
 ## 1. Overview
 
-Dito is a Windows desktop application that captures voice input, transcribes it locally using Whisper, and lets users export recordings as audio files or text. No cloud dependency. No subscription. Your voice stays on your machine.
+VivaVoz is a Windows desktop application that captures voice input, transcribes it locally using Whisper, and lets users export recordings as audio files or text. No cloud dependency. No subscription. Your voice stays on your machine.
 
-**Origin:** Inspired by SuperWhisper and Auto (Mac-only tools). No polished, local-first, affordable voice-to-text tool exists for Windows. Dito fills that gap.
+**Origin:** Inspired by SuperWhisper and Auto (Mac-only tools). No polished, local-first, affordable voice-to-text tool exists for Windows. VivaVoz fills that gap. The name comes from the Portuguese "viva" (alive) + "voz" (voice) — your voice, kept alive.
 
 ## 2. Problem Statement
 
@@ -92,11 +94,13 @@ Mac users have multiple polished tools for this. **Windows users have nothing go
 ### 4.1 Core Features
 
 #### F1: Voice Capture
-- Global hotkey to start/stop recording (configurable)
+- Global hotkey to start/stop recording (configurable in Settings)
 - Push-to-talk mode (hold key to record, release to stop)
 - Toggle mode (press to start, press again to stop)
 - Visual indicator showing recording state (system tray + overlay)
 - Support for default system microphone
+- **No concurrent recordings** — hotkey is disabled while a recording is active (toggle) or while holding (push-to-talk). One recording at a time.
+- **Hotkey conflicts:** If the configured hotkey is already in use by another app, VivaVoz shows a warning in Settings when the user saves. The user resolves it by picking a different key combo — VivaVoz does not silently fail or auto-reassign.
 
 #### F2: Local Transcription
 - On-device transcription using Whisper (no cloud)
@@ -178,14 +182,14 @@ ARM64 support: stretch goal for v1, likely v2.
 
 | Level | Definition | User Experience | System Action |
 |-------|-----------|----------------|---------------|
-| **⚠️ Warning** | Unexpected but non-blocking. App continues. | Toast notification (auto-dismiss 5s) | Log to `dito.log`. Continue. |
+| **⚠️ Warning** | Unexpected but non-blocking. App continues. | Toast notification (auto-dismiss 5s) | Log to `vivavoz.log`. Continue. |
 | **🔶 Recoverable** | Operation failed but app is stable. User can retry. | Modal dialog with message + action buttons (Retry / Skip / Help) | Log. Preserve partial work. Offer recovery path. |
 | **🔴 Catastrophic** | Cannot continue. Data loss risk. | Full-screen error: what happened + what was saved + how to report | Log. Save what's salvageable. Offer crash report (opt-in). |
 
 ### Principles
 
 1. **Never lose audio.** If recording started, raw audio buffer saves to temp no matter what. Recover on next launch.
-2. **Always log.** Every error → `%LOCALAPPDATA%/Dito/logs/dito.log` with timestamp, severity, context. Rotated weekly.
+2. **Always log.** Every error → `%LOCALAPPDATA%/VivaVoz/logs/vivavoz.log` with timestamp, severity, context. Rotated weekly.
 3. **Always offer a way forward.** Every error has an action: retry, skip, open settings, or contact support. Never a dead end.
 4. **User message ≠ developer message.** User sees plain language. Log file gets the stack trace.
 5. **Graceful degradation.** Preferred model fails → fall back to tiny. Export fails → offer clipboard. Always a Plan B.
@@ -200,18 +204,18 @@ ARM64 support: stretch goal for v1, likely v2.
 | Model download fails | 🔶 Recoverable | "Download failed." [Retry] [Use Tiny] | Log. Fall back to bundled model. |
 | Transcription inaccurate | ⚠️ Warning | "Transcription may be inaccurate." [Re-transcribe] [Edit] | Log. Keep original audio. |
 | Hotkey conflict | ⚠️ Warning | "Shortcut conflicts with [App]." [Change Shortcut] | Log. Suggest alternative. |
-| Crash during recording | 🔴 Catastrophic | On next launch: "Dito recovered a recording." [Keep] [Discard] | Auto-save temp buffer. Recovery on startup. |
+| Crash during recording | 🔴 Catastrophic | On next launch: "VivaVoz recovered a recording." [Keep] [Discard] | Auto-save temp buffer. Recovery on startup. |
 | SQLite corruption | 🔴 Catastrophic | "Database error. Your audio files are safe." | Backup corrupt DB. Create fresh. Audio untouched. |
 
 *This table is a starting point. New scenarios are classified using the same three levels and principles above.*
 
 ## 6. First-Run Experience
 
-On first launch, Dito guides the user through a 4-step onboarding wizard:
+On first launch, VivaVoz guides the user through a 4-step onboarding wizard:
 
-1. **Welcome** — "Hi, I'm Dito. I turn your voice into text, right on your machine." Brief value prop, no fluff.
+1. **Welcome** — "Hi, I'm VivaVoz. I turn your voice into text, right on your machine." Brief value prop, no fluff.
 2. **Model Selection** — Choose Tiny (fastest, bundled) or download Base (better accuracy). Progress bar for download. User can always change later in Settings.
-3. **Test Recording** — "Say something!" Button records a short clip → transcribes → shows the result. User sees Dito work before they need it. Their first recording is already saved.
+3. **Test Recording** — "Say something!" Button records a short clip → transcribes → shows the result. User sees VivaVoz work before they need it. Their first recording is already saved.
 4. **Hotkey Setup** — Show default hotkey, let them customize. Explain push-to-talk vs toggle. Done.
 
 After the wizard, user lands on the main screen with their test recording visible.
@@ -220,22 +224,22 @@ After the wizard, user lands on the main screen with their test recording visibl
 
 ## 7. User Interface
 
-### 5.1 System Tray
-- Dito lives in the system tray when not actively in use
+### 7.1 System Tray
+- VivaVoz lives in the system tray when not actively in use
 - Tray icon shows recording state (idle / recording / transcribing)
-- Right-click menu: Open Dito, Quick Record, Settings, Exit
+- Right-click menu: Open VivaVoz, Quick Record, Settings, Exit
 
-### 5.2 Main Window
+### 7.2 Main Window
 - **Recordings List** — Left panel, chronological, searchable
 - **Detail View** — Right panel showing selected recording's transcript + audio player
 - **Quick Actions** — Copy, Export, Delete, Edit
 
-### 5.3 Recording Overlay
+### 7.3 Recording Overlay
 - Minimal floating indicator during recording (waveform + duration)
 - Always-on-top, draggable, dismissable
 - Click to stop recording
 
-### 5.4 Settings
+### 7.4 Settings
 - Hotkey configuration
 - Whisper model selection (with download manager)
 - Audio input device selection
@@ -257,14 +261,14 @@ After the wizard, user lands on the main screen with their test recording visibl
 
 ## 9. Data Model & Storage Strategy
 
-### 7.1 File System Layout
+### 9.1 File System Layout
 
-Dito uses `%LOCALAPPDATA%/Dito/` as its root. SQLite holds structured data; the file system holds binary assets.
+VivaVoz uses `%LOCALAPPDATA%/VivaVoz/` as its root. SQLite holds structured data; the file system holds binary assets.
 
 ```
-%LOCALAPPDATA%/Dito/
+%LOCALAPPDATA%/VivaVoz/
 ├── data/
-│   └── dito.db              ← SQLite: recordings, settings, tags
+│   └── vivavoz.db              ← SQLite: recordings, settings, tags
 ├── audio/
 │   └── {yyyy-MM}/
 │       ├── {guid}.wav       ← raw recording (original, never modified)
@@ -282,9 +286,9 @@ Dito uses `%LOCALAPPDATA%/Dito/` as its root. SQLite holds structured data; the 
 - **Models are separate** — large binaries isolated, easy to manage/delete
 - **Exports use standard Save dialog** — user picks destination, no dedicated folder
 - **Delete = DB row + audio file** — cascading cleanup, no orphans
-- **Configurable root** — user can move the entire Dito folder (e.g. to a larger drive)
+- **Configurable root** — user can move the entire VivaVoz folder (e.g. to a larger drive)
 
-### 7.2 Entities
+### 9.2 Entities
 
 ```
 Recording
@@ -292,6 +296,7 @@ Recording
 ├── Title (auto-generated from first words, or user-set)
 ├── AudioFileName (relative path: {yyyy-MM}/{guid}.wav)
 ├── Transcript (text)
+├── Status (enum: Recording → Transcribing → Complete | Failed)
 ├── Language (detected or manually set)
 ├── Duration (TimeSpan)
 ├── CreatedAt (DateTime UTC)
@@ -303,7 +308,7 @@ Settings
 ├── HotkeyConfig (key combo + mode: push-to-talk or toggle)
 ├── WhisperModelSize (tiny/base/small/medium/large)
 ├── AudioInputDevice (system default or specific device)
-├── StoragePath (root folder, default: %LOCALAPPDATA%/Dito)
+├── StoragePath (root folder, default: %LOCALAPPDATA%/VivaVoz)
 ├── ExportFormat (default: MP3, options: WAV, OGG)
 ├── Theme (light/dark/system)
 └── Language (default: auto-detect, or fixed language)
@@ -335,12 +340,12 @@ All dependencies are MIT licensed — free for commercial use, no restrictions.
 
 | Document | Where | When |
 |----------|-------|------|
-| **Privacy Policy** | dito-app.com/privacy | Required for Microsoft Store submission. Before launch. |
-| **Terms of Use / EULA** | Embedded in installer + dito-app.com/terms | Before launch. |
+| **Privacy Policy** | vivavoz-app.com/privacy | Required for Microsoft Store submission. Before launch. |
+| **Terms of Use / EULA** | Embedded in installer + vivavoz-app.com/terms | Before launch. |
 
 ### Privacy Policy Summary
 
-Dito processes everything locally. No data leaves the user's machine. No accounts. No telemetry. No analytics in v1. If opt-in analytics are added in v2, the policy will be updated and users will be prompted to consent.
+VivaVoz processes everything locally. No data leaves the user's machine. No accounts. No telemetry. No analytics in v1. If opt-in analytics are added in v2, the policy will be updated and users will be prompted to consent.
 
 ### EULA Summary
 
@@ -357,7 +362,7 @@ Standard $5 one-time purchase. No warranty. No liability. Non-transferable licen
 
 ### Direct Download Update Flow
 
-1. On launch, Dito checks dito-app.com/version.json for latest version (lightweight HTTP call)
+1. On launch, VivaVoz checks vivavoz-app.com/version.json for latest version (lightweight HTTP call)
 2. If newer version available → non-intrusive banner: "Update available (v1.1). [Update Now] [Later]"
 3. **Auto-update setting (off by default):** User can enable in Settings → "Automatically download and install updates"
 4. When enabled: download happens in background, installs on next app restart
@@ -384,13 +389,13 @@ Settings
 | Channel | Implementation | Purpose |
 |---------|---------------|---------|
 | **In-app Help** | Built-in Getting Started + FAQ page | First stop — reduces support volume |
-| **Product Website** | dito-app.com — landing page, FAQ, download links | Public face, purchase, documentation |
+| **Product Website** | vivavoz-app.com — landing page, FAQ, download links | Public face, purchase, documentation |
 | **GitHub Issues** | Public repo with issue templates (bug report, feature request) | Transparent, community-driven, power users |
 | **Contact Email** | support@casuloailabs.com | Non-technical users, private issues |
 
 **User support flow:**
 1. Problem → **In-app FAQ** (immediate, no internet needed)
-2. Still stuck → **dito-app.com/faq** (more detailed, searchable)
+2. Still stuck → **vivavoz-app.com/faq** (more detailed, searchable)
 3. Bug or feature request → **GitHub Issues** (templates guide the report)
 4. Private or non-technical → **Email**
 
@@ -427,13 +432,13 @@ Settings
 1. **Whisper model distribution** — Bundle smallest model (tiny). Larger models download on demand via in-app model manager.
 2. **Audio format** — Default export: MP3. Configurable dropdown: MP3, WAV, OGG.
 3. **Pricing** — $5 one-time. Gain clients first.
-4. **Distribution** — Both Microsoft Store and direct download (dito-app.com).
-5. **Domain** — dito-app.com (available, to be registered).
+4. **Distribution** — Both Microsoft Store and direct download (vivavoz-app.com).
+5. **Domain** — vivavoz-app.com (available, to be registered).
 
 ## 16. Open Questions
 
-1. **Name trademark** — Need to check "Dito" availability
+*None at this time.*
 
 ---
 
-*Dito e feito.* 🎙️
+*Your voice, alive.* 🎙️

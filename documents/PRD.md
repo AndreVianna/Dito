@@ -9,6 +9,44 @@
 
 ---
 
+## Executive Summary
+
+Dito is a $5 Windows desktop app that captures voice, transcribes it locally using Whisper, and exports recordings as audio or text. No cloud. No subscription. No account needed.
+
+The market opportunity: Mac has 5+ polished voice-to-text tools (SuperWhisper, Auto, Wispr Flow). Windows has nothing comparable at an affordable price point. Wispr Flow ($81M funded) is entering Windows but is cloud-only and subscription-based, leaving the local-first, privacy-respecting niche wide open.
+
+Dito fills that gap. Built with .NET 10 + Blazor Hybrid for portability. MVP in 4 weeks. $5 impulse buy. Microsoft Store + direct download.
+
+*Dito e feito — said and done.*
+
+---
+
+## Change Log
+
+| Version | Date | Author | Changes |
+|---------|------|--------|---------|
+| 0.1 | 2026-02-17 | Lola Lovelace | Initial PRD — MVP scope, tech stack, data model |
+| 0.2 | 2026-02-17 | Andre Vianna / Lola Lovelace | Resolved open questions: pricing ($5), format (MP3 default), distribution (Store + direct), Whisper bundling (tiny + on-demand) |
+| 0.3 | 2026-02-17 | Lola Lovelace | Added executive summary, change log, index. Casulo document standard. |
+
+---
+
+## Index
+
+1. [Overview](#1-overview)
+2. [Problem Statement](#2-problem-statement)
+3. [Target Users](#3-target-users)
+4. [MVP Scope (v1.0)](#4-mvp-scope-v10)
+5. [User Interface](#5-user-interface)
+6. [Tech Stack](#6-tech-stack)
+7. [Data Model](#7-data-model-draft)
+8. [Future Versions](#8-future-versions-out-of-mvp-scope)
+9. [Success Metrics](#9-success-metrics)
+10. [Decisions Made](#10-decisions-made)
+11. [Open Questions](#11-open-questions)
+
+---
+
 ## 1. Overview
 
 Dito is a Windows desktop application that captures voice input, transcribes it locally using Whisper, and lets users export recordings as audio files or text. No cloud dependency. No subscription. Your voice stays on your machine.
@@ -62,7 +100,7 @@ Mac users have multiple polished tools for this. **Windows users have nothing go
 - Sort by date, duration, or title
 
 #### F4: Export
-- Export as audio file (WAV/MP3)
+- Export as audio file (default: MP3; options: WAV, OGG)
 - Export as text file (TXT/MD)
 - Copy transcript to clipboard (one-click)
 - Batch export selected recordings
@@ -114,7 +152,7 @@ Mac users have multiple polished tools for this. **Windows users have nothing go
 - Whisper model selection (with download manager)
 - Audio input device selection
 - Storage location
-- Export defaults
+- Export defaults (format, output directory)
 - Theme (light/dark/system)
 
 ## 6. Tech Stack
@@ -174,7 +212,7 @@ Settings
 
 - **Build:** Working MVP in 4 weeks
 - **Validate:** 100 beta users in first month
-- **Revenue:** First paid download within 6 weeks of launch ($5-10 one-time, impulse price point)
+- **Revenue:** First paid download within 6 weeks of launch ($5 one-time, impulse price point)
 
 ## 10. Decisions Made
 

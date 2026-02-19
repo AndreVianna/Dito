@@ -1,0 +1,10 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="VivaVoz.Views.MainWindow"
+        Width="800"
+        Height="450"
+        Title="VivaVoz">
+  <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12">
+    <TextBlock Text="{Binding WelcomeMessage}" FontSize="24" />
+  </StackPanel>
+</Window>

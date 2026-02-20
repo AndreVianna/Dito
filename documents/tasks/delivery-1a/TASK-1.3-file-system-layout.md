@@ -21,8 +21,8 @@ VivaVoz relies on a specific file system structure to store its database, audio 
 - **Error Handling:** Log any `UnauthorizedAccessException` or `IOException` during directory creation (though rare in AppData).
 
 ### File Path Conventions
-- Service: `/home/andre/projects/VivaVoz/src/VivaVoz/Services/FileSystemService.cs`
-- Constants: `/home/andre/projects/VivaVoz/src/VivaVoz/Constants/FilePaths.cs`
+- Service: `/home/andre/projects/VivaVoz/source/VivaVoz/Services/FileSystemService.cs`
+- Constants: `/home/andre/projects/VivaVoz/source/VivaVoz/Constants/FilePaths.cs`
 
 ## Acceptance Criteria (Verification Steps)
 
@@ -37,3 +37,18 @@ VivaVoz relies on a specific file system structure to store its database, audio 
 - Launch the application again.
 - Verify that the missing subdirectories are created.
 - Confirm that existing directories remain untouched.
+
+### Unit Tests Required
+
+**Testing Standards (apply to ALL tests in this task):**
+- **Framework:** xUnit
+- **Mocking:** NSubstitute (already in test project — do NOT use Moq or any other framework)
+- **Assertions:** AwesomeAssertions (add NuGet package if not present — use fluent assertion syntax)
+- **Naming:** GUTs (Good Unit Tests) — `MethodName_Scenario_ExpectedBehavior`
+- **Structure:** Arrange-Act-Assert (AAA) pattern, clearly separated
+- **Principles:** FIRST — Fast, Isolated, Repeatable, Self-validating, Timely
+- **One logical assertion per test** — each test verifies a single behavior
+Produce unit tests in `VivaVoz.Tests` covering:
+- **FilePaths constants:** Verify `BaseDirectory` resolves to `{LocalAppData}/VivaVoz`. Verify `AudioDirectory`, `DataDirectory`, `ModelsDirectory`, `LogsDirectory` are subdirectories of `BaseDirectory`. Verify `DatabasePath` points to `data/vivavoz.db`.
+- **FileSystemService.EnsureDirectoriesExist():** Verify all 4 directories are created when none exist (use a temp directory, not real AppData). Verify method is idempotent (calling twice doesn't throw). Verify missing subdirectories are created when parent exists.
+- **Minimum:** 5 tests, all with specific path/existence assertions.

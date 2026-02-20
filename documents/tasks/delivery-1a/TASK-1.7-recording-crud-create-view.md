@@ -27,7 +27,7 @@ This task connects the dots. The "Record" button triggers the audio engine (Task
 - **Validation:** Handle microphone unavailability gracefully (show error dialog).
 
 ### File Path Conventions
-- ViewModel: `/home/andre/projects/VivaVoz/src/VivaVoz/ViewModels/RecorderViewModel.cs`
+- ViewModel: `/home/andre/projects/VivaVoz/source/VivaVoz/ViewModels/RecorderViewModel.cs`
 
 ## Acceptance Criteria (Verification Steps)
 
@@ -53,3 +53,20 @@ This task connects the dots. The "Record" button triggers the audio engine (Task
   - Click the "Record" button.
   - Verify an error message (dialog or notification) is displayed (e.g., "No microphone found").
   - Verify the application remains responsive (does not crash).
+
+### Unit Tests Required
+
+**Testing Standards (apply to ALL tests in this task):**
+- **Framework:** xUnit
+- **Mocking:** NSubstitute (already in test project — do NOT use Moq or any other framework)
+- **Assertions:** AwesomeAssertions (add NuGet package if not present — use fluent assertion syntax)
+- **Naming:** GUTs (Good Unit Tests) — `MethodName_Scenario_ExpectedBehavior`
+- **Structure:** Arrange-Act-Assert (AAA) pattern, clearly separated
+- **Principles:** FIRST — Fast, Isolated, Repeatable, Self-validating, Timely
+- **One logical assertion per test** — each test verifies a single behavior
+Produce unit tests in `VivaVoz.Tests` covering:
+- **StartRecordingCommand:** Verify command calls `IAudioRecorder.StartRecording()`. Verify UI state updates (`IsRecording = true`). Verify command is disabled while already recording.
+- **StopRecordingCommand:** Verify command calls `IAudioRecorder.StopRecording()`. Verify a new `Recording` entity is created with correct metadata (Duration, AudioFileName, Status, CreatedAt). Verify the new recording is added to the list at position 0 (top).
+- **Persistence:** Verify `Recording` entity is saved to the database (use in-memory SQLite).
+- **Error handling:** Verify `MicrophoneNotFoundException` is caught and surfaced as an error state (not a crash).
+- **Minimum:** 7 tests. Use mocked `IAudioRecorder` for command tests.

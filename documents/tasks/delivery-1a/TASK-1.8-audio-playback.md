@@ -28,8 +28,8 @@ A voice recorder is useless if you can't hear what you captured. This task adds 
 - **Event Handling:** Subscribe to `PlaybackStopped` to update UI state when audio ends naturally.
 
 ### File Path Conventions
-- Service: `/home/andre/projects/VivaVoz/src/VivaVoz/Services/Audio/AudioPlayerService.cs`
-- ViewModel: `/home/andre/projects/VivaVoz/src/VivaVoz/ViewModels/AudioPlayerViewModel.cs` (or part of DetailViewModel)
+- Service: `/home/andre/projects/VivaVoz/source/VivaVoz/Services/Audio/AudioPlayerService.cs`
+- ViewModel: `/home/andre/projects/VivaVoz/source/VivaVoz/ViewModels/AudioPlayerViewModel.cs` (or part of DetailViewModel)
 
 ## Acceptance Criteria (Verification Steps)
 
@@ -52,3 +52,19 @@ A voice recorder is useless if you can't hear what you captured. This task adds 
   - Verify the audio stops.
   - Verify the progress bar resets to the start (0:00).
   - Verify the button shows "Play".
+
+### Unit Tests Required
+
+**Testing Standards (apply to ALL tests in this task):**
+- **Framework:** xUnit
+- **Mocking:** NSubstitute (already in test project — do NOT use Moq or any other framework)
+- **Assertions:** AwesomeAssertions (add NuGet package if not present — use fluent assertion syntax)
+- **Naming:** GUTs (Good Unit Tests) — `MethodName_Scenario_ExpectedBehavior`
+- **Structure:** Arrange-Act-Assert (AAA) pattern, clearly separated
+- **Principles:** FIRST — Fast, Isolated, Repeatable, Self-validating, Timely
+- **One logical assertion per test** — each test verifies a single behavior
+Produce unit tests in `VivaVoz.Tests` covering:
+- **AudioPlayerService state management:** Verify `IsPlaying` is false initially. Verify `Play()` with a valid path sets `IsPlaying` to true. Verify `Pause()` sets `IsPlaying` to false. Verify `Stop()` sets `IsPlaying` to false and resets `CurrentPosition` to zero.
+- **AudioPlayerService error handling:** Verify `Play()` with a non-existent file throws `FileNotFoundException` (or handles gracefully). Verify `Stop()` when not playing is a no-op (no throw).
+- **AudioPlayerViewModel:** Verify `PlayCommand` toggles `IsPlaying`. Verify `StopCommand` resets position. Verify `CurrentPosition` and `TotalDuration` are exposed as bindable properties.
+- **Minimum:** 7 tests. Use mocked `IAudioPlayer` for ViewModel tests. AudioPlayerService tests may need a real WAV file fixture (create a small test WAV in test setup).

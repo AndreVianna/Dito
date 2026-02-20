@@ -28,8 +28,8 @@ With the shell in place, we need to populate it. The primary interaction flow is
 - **Data Source:** For this task, use dummy data/mock service until the real database is wired up in Task 1.7.
 
 ### File Path Conventions
-- Views: `/home/andre/projects/VivaVoz/src/VivaVoz/Views/RecordingsListView.axaml`, `/home/andre/projects/VivaVoz/src/VivaVoz/Views/RecordingDetailView.axaml`
-- ViewModels: `/home/andre/projects/VivaVoz/src/VivaVoz/ViewModels/RecordingsListViewModel.cs`
+- Views: `/home/andre/projects/VivaVoz/source/VivaVoz/Views/RecordingsListView.axaml`, `/home/andre/projects/VivaVoz/source/VivaVoz/Views/RecordingDetailView.axaml`
+- ViewModels: `/home/andre/projects/VivaVoz/source/VivaVoz/ViewModels/RecordingsListViewModel.cs`
 
 ## Acceptance Criteria (Verification Steps)
 
@@ -44,3 +44,18 @@ With the shell in place, we need to populate it. The primary interaction flow is
 - [ ] **No Selection State**
   - Launch the application (no item pre-selected).
   - Verify the detail panel displays a message like "Select a recording to view details".
+
+### Unit Tests Required
+
+**Testing Standards (apply to ALL tests in this task):**
+- **Framework:** xUnit
+- **Mocking:** NSubstitute (already in test project — do NOT use Moq or any other framework)
+- **Assertions:** AwesomeAssertions (add NuGet package if not present — use fluent assertion syntax)
+- **Naming:** GUTs (Good Unit Tests) — `MethodName_Scenario_ExpectedBehavior`
+- **Structure:** Arrange-Act-Assert (AAA) pattern, clearly separated
+- **Principles:** FIRST — Fast, Isolated, Repeatable, Self-validating, Timely
+- **One logical assertion per test** — each test verifies a single behavior
+Produce unit tests in `VivaVoz.Tests` covering:
+- **RecordingsListViewModel (or MainViewModel recordings):** Verify recordings collection is initialized (not null). Verify `SelectedRecording` is null by default. Verify setting `SelectedRecording` raises `PropertyChanged`. Verify recordings are sorted by `CreatedAt` descending (newest first) when loaded.
+- **Mock data:** Verify mock/seed data produces exactly 3 recordings with distinct dates.
+- **Minimum:** 4 tests with specific value assertions.

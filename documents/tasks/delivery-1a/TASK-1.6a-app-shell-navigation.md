@@ -23,8 +23,8 @@ This task builds the skeleton of the application. It creates the primary window 
 - **Theme:** `FluentTheme` applied in `App.axaml`.
 
 ### File Path Conventions
-- Main Window: `/home/andre/projects/VivaVoz/src/VivaVoz/Views/MainWindow.axaml`
-- Main ViewModel: `/home/andre/projects/VivaVoz/src/VivaVoz/ViewModels/MainViewModel.cs`
+- Main Window: `/home/andre/projects/VivaVoz/source/VivaVoz/Views/MainWindow.axaml`
+- Main ViewModel: `/home/andre/projects/VivaVoz/source/VivaVoz/ViewModels/MainViewModel.cs`
 
 ## Acceptance Criteria (Verification Steps)
 
@@ -37,3 +37,17 @@ This task builds the skeleton of the application. It creates the primary window 
 - [ ] **Theme Application**
   - Observe the UI elements (buttons, window chrome).
   - Verify Fluent design language is applied (rounded corners, standard Avalonia Fluent controls).
+
+### Unit Tests Required
+
+**Testing Standards (apply to ALL tests in this task):**
+- **Framework:** xUnit
+- **Mocking:** NSubstitute (already in test project — do NOT use Moq or any other framework)
+- **Assertions:** AwesomeAssertions (add NuGet package if not present — use fluent assertion syntax)
+- **Naming:** GUTs (Good Unit Tests) — `MethodName_Scenario_ExpectedBehavior`
+- **Structure:** Arrange-Act-Assert (AAA) pattern, clearly separated
+- **Principles:** FIRST — Fast, Isolated, Repeatable, Self-validating, Timely
+- **One logical assertion per test** — each test verifies a single behavior
+Produce unit tests in `VivaVoz.Tests` covering:
+- **MainViewModel:** Verify `MainViewModel` can be instantiated without throwing. Verify initial state properties (e.g., `SelectedRecording` is null, `IsRecording` is false).
+- **Minimum:** 2 tests. UI layout verification is manual (Avalonia headless testing is optional for MVP).

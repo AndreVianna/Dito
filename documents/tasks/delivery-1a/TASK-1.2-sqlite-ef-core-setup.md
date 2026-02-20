@@ -41,8 +41,8 @@ VivaVoz requires a local database to manage recording metadata and user preferen
     - `AutoUpdate` (bool, default false)
 
 ### File Path Conventions
-- Context: `/home/andre/projects/VivaVoz/src/VivaVoz/Data/AppDbContext.cs`
-- Models: `/home/andre/projects/VivaVoz/src/VivaVoz/Models/Recording.cs`, `/home/andre/projects/VivaVoz/src/VivaVoz/Models/Settings.cs`
+- Context: `/home/andre/projects/VivaVoz/source/VivaVoz/Data/AppDbContext.cs`
+- Models: `/home/andre/projects/VivaVoz/source/VivaVoz/Models/Recording.cs`, `/home/andre/projects/VivaVoz/source/VivaVoz/Models/Settings.cs`
 
 ## Acceptance Criteria (Verification Steps)
 
@@ -62,3 +62,19 @@ VivaVoz requires a local database to manage recording metadata and user preferen
 - Run the application.
 - Verify that the `InitialCreate` migration is applied successfully.
 - Confirm that no exceptions regarding missing tables are thrown.
+
+### Unit Tests Required
+
+**Testing Standards (apply to ALL tests in this task):**
+- **Framework:** xUnit
+- **Mocking:** NSubstitute (already in test project — do NOT use Moq or any other framework)
+- **Assertions:** AwesomeAssertions (add NuGet package if not present — use fluent assertion syntax)
+- **Naming:** GUTs (Good Unit Tests) — `MethodName_Scenario_ExpectedBehavior`
+- **Structure:** Arrange-Act-Assert (AAA) pattern, clearly separated
+- **Principles:** FIRST — Fast, Isolated, Repeatable, Self-validating, Timely
+- **One logical assertion per test** — each test verifies a single behavior
+Produce unit tests in `VivaVoz.Tests` covering:
+- **Recording model:** Verify default values (Status = Recording, Language = "auto", CreatedAt = UTC now). Verify all required properties are settable.
+- **Settings model:** Verify default values (WhisperModelSize = "tiny", ExportFormat = "MP3", Theme = "System", AutoUpdate = false). Verify StoragePath defaults to `%LOCALAPPDATA%/VivaVoz`.
+- **DatabaseInitializer:** Verify `Initialize()` calls `EnsureCreated()` on the context (use in-memory SQLite or mock). Verify a default Settings row is seeded if none exists.
+- **Minimum:** 6 tests, all with specific value assertions (no `Assert.True(true)`).

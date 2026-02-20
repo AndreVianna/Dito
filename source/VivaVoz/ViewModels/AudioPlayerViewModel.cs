@@ -33,6 +33,8 @@ public partial class AudioPlayerViewModel : ObservableObject {
 
     public string PlayPauseLabel => IsPlaying ? "Pause" : "Play";
 
+    public string TimeDisplay => $"{CurrentPosition:mm\\:ss} / {TotalDuration:mm\\:ss}";
+
     public void LoadRecording(Recording? recording) {
         StopPlayback();
 
@@ -80,6 +82,14 @@ public partial class AudioPlayerViewModel : ObservableObject {
 
     partial void OnIsPlayingChanged(bool value) {
         OnPropertyChanged(nameof(PlayPauseLabel));
+    }
+
+    partial void OnCurrentPositionChanged(TimeSpan value) {
+        OnPropertyChanged(nameof(TimeDisplay));
+    }
+
+    partial void OnTotalDurationChanged(TimeSpan value) {
+        OnPropertyChanged(nameof(TimeDisplay));
     }
 
     partial void OnProgressChanged(double value) {

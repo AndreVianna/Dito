@@ -45,12 +45,10 @@
             </StackPanel>
             <Slider Minimum="0"
                     Maximum="1"
-                    Value="{Binding AudioPlayer.Progress}" />
-            <TextBlock>
-              <Run Text="{Binding AudioPlayer.CurrentPosition, StringFormat='{}{0:mm\\:ss}'}" />
-              <Run Text=" / " />
-              <Run Text="{Binding AudioPlayer.TotalDuration, StringFormat='{}{0:mm\\:ss}'}" />
-            </TextBlock>
+                    Value="{Binding AudioPlayer.Progress}"
+                    IsSnapToTickEnabled="False"
+                    TickFrequency="0.001" />
+            <TextBlock Text="{Binding AudioPlayer.TimeDisplay}" />
           </StackPanel>
         </Border>
 

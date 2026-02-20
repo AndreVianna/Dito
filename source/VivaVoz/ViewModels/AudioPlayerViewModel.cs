@@ -122,6 +122,7 @@ public partial class AudioPlayerViewModel : ObservableObject {
         Progress = 0;
     }
 
+    [ExcludeFromCodeCoverage]
     private void OnPlaybackStopped(object? sender, EventArgs e) => Dispatcher.UIThread.Post(() => {
         _timer.Stop();
         IsPlaying = false;

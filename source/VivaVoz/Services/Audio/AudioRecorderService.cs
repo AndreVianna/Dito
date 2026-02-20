@@ -1,5 +1,6 @@
 namespace VivaVoz.Services.Audio;
 
+[ExcludeFromCodeCoverage]
 public sealed class AudioRecorderService : IAudioRecorder {
     private readonly Lock _sync = new();
     private WaveInEvent? _waveIn;

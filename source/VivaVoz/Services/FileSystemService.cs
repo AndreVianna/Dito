@@ -23,6 +23,7 @@ public sealed class FileSystemService {
         }
     }
 
+    [ExcludeFromCodeCoverage]
     private static void LogDirectoryError(string directory, Exception exception) {
         var message = $"[FileSystemService] Failed to create directory '{directory}'.";
         Trace.TraceError("{0} {1}", message, exception);

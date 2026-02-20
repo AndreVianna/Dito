@@ -10,6 +10,7 @@ using VivaVoz.Data;
 namespace VivaVoz.Migrations
 {
     [DbContext(typeof(AppDbContext))]
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     partial class AppDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

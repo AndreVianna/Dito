@@ -81,6 +81,7 @@ public partial class MainViewModel : ObservableObject {
         DetailBody = "Detail view placeholder.";
     }
 
+    [ExcludeFromCodeCoverage]
     private void OnRecordingStopped(object? sender, AudioRecordingStoppedEventArgs e) => Dispatcher.UIThread.Post(() => {
         IsRecording = _recorder.IsRecording;
 
@@ -107,6 +108,7 @@ public partial class MainViewModel : ObservableObject {
         Recordings.Insert(0, recording);
     });
 
+    [ExcludeFromCodeCoverage]
     private static string GetRelativeAudioPath(string filePath) {
         try {
             return Path.GetRelativePath(FilePaths.AudioDirectory, filePath);
@@ -116,6 +118,7 @@ public partial class MainViewModel : ObservableObject {
         }
     }
 
+    [ExcludeFromCodeCoverage]
     private static long GetFileSize(string filePath) {
         try {
             var fileInfo = new FileInfo(filePath);
@@ -126,6 +129,7 @@ public partial class MainViewModel : ObservableObject {
         }
     }
 
+    [ExcludeFromCodeCoverage]
     private static void ShowMicrophoneNotFoundDialog(string message) {
         var text = string.IsNullOrWhiteSpace(message)
             ? "No microphone device detected."

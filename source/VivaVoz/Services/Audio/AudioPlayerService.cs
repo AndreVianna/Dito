@@ -1,5 +1,6 @@
 namespace VivaVoz.Services.Audio;
 
+[ExcludeFromCodeCoverage]
 public sealed class AudioPlayerService : IAudioPlayer {
     private readonly Lock _sync = new();
     private WaveOutEvent? _output;

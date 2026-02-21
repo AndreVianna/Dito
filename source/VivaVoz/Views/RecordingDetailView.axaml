@@ -52,14 +52,50 @@
           </StackPanel>
         </Border>
 
-        <StackPanel Spacing="8">
-          <TextBlock Text="Transcript" FontSize="12" Opacity="0.7" />
+        <!-- Transcript Section -->
+        <StackPanel Spacing="8"
+                    IsVisible="{Binding ShowTranscriptSection}">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="Transcript"
+                       FontSize="12"
+                       Opacity="0.7"
+                       VerticalAlignment="Center" />
+            <!-- Transcribing indicator (animated dots via ProgressBar) -->
+            <ProgressBar IsIndeterminate="True"
+                         IsVisible="{Binding IsTranscribing}"
+                         Width="80"
+                         Height="4"
+                         VerticalAlignment="Center" />
+            <!-- Copy to clipboard button -->
+            <Button Command="{Binding CopyTranscriptCommand}"
+                    Content="{Binding CopyButtonLabel}"
+                    IsVisible="{Binding CanCopyTranscript}"
+                    FontSize="12"
+                    Padding="8,2"
+                    VerticalAlignment="Center" />
+          </StackPanel>
           <Border Padding="12"
                   BorderThickness="1"
                   BorderBrush="#1FFFFFFF"
-                  CornerRadius="6">
-            <TextBlock Text="{Binding SelectedRecording.Transcript, TargetNullValue='No transcript available yet.'}"
-                       TextWrapping="Wrap" />
+                  CornerRadius="6"
+                  MinHeight="100">
+            <!-- Read-only TextBox allows text selection for manual copy -->
+            <TextBox Text="{Binding TranscriptDisplay, Mode=OneWay}"
+                     IsReadOnly="True"
+                     AcceptsReturn="True"
+                     TextWrapping="Wrap"
+                     BorderThickness="0"
+                     Background="Transparent"
+                     Padding="0">
+              <TextBox.Styles>
+                <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
+                  <Setter Property="Background" Value="Transparent" />
+                </Style>
+                <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+                  <Setter Property="Background" Value="Transparent" />
+                </Style>
+              </TextBox.Styles>
+            </TextBox>
           </Border>
         </StackPanel>
       </StackPanel>

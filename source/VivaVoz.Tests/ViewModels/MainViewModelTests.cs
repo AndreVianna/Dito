@@ -1,12 +1,17 @@
 using AwesomeAssertions;
+
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
+
 using VivaVoz.Data;
 using VivaVoz.Models;
+using VivaVoz.Services;
 using VivaVoz.Services.Audio;
+using VivaVoz.Services.Transcription;
 using VivaVoz.ViewModels;
+
 using Xunit;
 
 namespace VivaVoz.Tests.ViewModels;
@@ -19,7 +24,7 @@ public class MainViewModelTests {
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
 
-        var act = () => new MainViewModel(recorder, player, context);
+        var act = () => new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
 
         act.Should().NotThrow();
     }
@@ -30,7 +35,7 @@ public class MainViewModelTests {
         using var context = CreateContext(connection);
         var player = Substitute.For<IAudioPlayer>();
 
-        var act = () => new MainViewModel(null!, player, context);
+        var act = () => new MainViewModel(null!, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("recorder");
     }
@@ -41,7 +46,7 @@ public class MainViewModelTests {
         using var context = CreateContext(connection);
         var recorder = Substitute.For<IAudioRecorder>();
 
-        var act = () => new MainViewModel(recorder, null!, context);
+        var act = () => new MainViewModel(recorder, null!, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("audioPlayer");
     }
@@ -51,9 +56,21 @@ public class MainViewModelTests {
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
 
-        var act = () => new MainViewModel(recorder, player, null!);
+        var act = () => new MainViewModel(recorder, player, null!, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("dbContext");
+    }
+
+    [Fact]
+    public void Constructor_WithNullTranscriptionManager_ShouldThrowArgumentNullException() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var recorder = Substitute.For<IAudioRecorder>();
+        var player = Substitute.For<IAudioPlayer>();
+
+        var act = () => new MainViewModel(recorder, player, context, null!, Substitute.For<IClipboardService>());
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("transcriptionManager");
     }
 
     [Fact]
@@ -64,7 +81,7 @@ public class MainViewModelTests {
         recorder.IsRecording.Returns(false);
         var player = Substitute.For<IAudioPlayer>();
 
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
 
         viewModel.IsRecording.Should().BeFalse();
     }
@@ -77,7 +94,7 @@ public class MainViewModelTests {
         recorder.IsRecording.Returns(true);
         var player = Substitute.For<IAudioPlayer>();
 
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
 
         viewModel.IsRecording.Should().BeTrue();
     }
@@ -89,7 +106,7 @@ public class MainViewModelTests {
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
 
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
 
         viewModel.SelectedRecording.Should().BeNull();
     }
@@ -101,7 +118,7 @@ public class MainViewModelTests {
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
 
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
 
         viewModel.Recordings.Should().NotBeNull();
     }
@@ -122,7 +139,7 @@ public class MainViewModelTests {
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
 
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
 
         viewModel.Recordings.Select(r => r.Id).Should().Equal(newest.Id, middle.Id, older.Id);
     }
@@ -133,7 +150,7 @@ public class MainViewModelTests {
         using var context = CreateContext(connection);
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
         var recording = CreateRecording(DateTime.UtcNow);
 
         var changed = new List<string>();
@@ -155,7 +172,7 @@ public class MainViewModelTests {
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
 
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
 
         viewModel.HasSelection.Should().BeFalse();
     }
@@ -166,9 +183,9 @@ public class MainViewModelTests {
         using var context = CreateContext(connection);
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
-        var viewModel = new MainViewModel(recorder, player, context);
-
-        viewModel.SelectedRecording = CreateRecording(DateTime.UtcNow);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>()) {
+            SelectedRecording = CreateRecording(DateTime.UtcNow)
+        };
 
         viewModel.HasSelection.Should().BeTrue();
     }
@@ -180,7 +197,7 @@ public class MainViewModelTests {
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
 
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
 
         viewModel.NoSelection.Should().BeTrue();
     }
@@ -191,9 +208,9 @@ public class MainViewModelTests {
         using var context = CreateContext(connection);
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
-        var viewModel = new MainViewModel(recorder, player, context);
-
-        viewModel.SelectedRecording = CreateRecording(DateTime.UtcNow);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>()) {
+            SelectedRecording = CreateRecording(DateTime.UtcNow)
+        };
 
         viewModel.NoSelection.Should().BeFalse();
     }
@@ -206,7 +223,7 @@ public class MainViewModelTests {
         recorder.IsRecording.Returns(false);
         var player = Substitute.For<IAudioPlayer>();
 
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
 
         viewModel.IsNotRecording.Should().BeTrue();
     }
@@ -217,7 +234,7 @@ public class MainViewModelTests {
         using var context = CreateContext(connection);
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
 
         var changed = new List<string>();
         viewModel.PropertyChanged += (_, args) => {
@@ -236,7 +253,7 @@ public class MainViewModelTests {
         using var context = CreateContext(connection);
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
         var recording = CreateRecording(DateTime.UtcNow);
 
         viewModel.SelectRecordingCommand.Execute(recording);
@@ -250,8 +267,9 @@ public class MainViewModelTests {
         using var context = CreateContext(connection);
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
-        var viewModel = new MainViewModel(recorder, player, context);
-        viewModel.SelectedRecording = CreateRecording(DateTime.UtcNow);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>()) {
+            SelectedRecording = CreateRecording(DateTime.UtcNow)
+        };
 
         viewModel.SelectRecordingCommand.Execute(null);
 
@@ -264,8 +282,9 @@ public class MainViewModelTests {
         using var context = CreateContext(connection);
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
-        var viewModel = new MainViewModel(recorder, player, context);
-        viewModel.SelectedRecording = CreateRecording(DateTime.UtcNow);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>()) {
+            SelectedRecording = CreateRecording(DateTime.UtcNow)
+        };
 
         viewModel.ClearSelectionCommand.Execute(null);
 
@@ -279,7 +298,7 @@ public class MainViewModelTests {
         var recorder = Substitute.For<IAudioRecorder>();
         recorder.IsRecording.Returns(false);
         var player = Substitute.For<IAudioPlayer>();
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
 
         viewModel.StartRecordingCommand.Execute(null);
 
@@ -293,7 +312,7 @@ public class MainViewModelTests {
         var recorder = Substitute.For<IAudioRecorder>();
         recorder.IsRecording.Returns(false, true);
         var player = Substitute.For<IAudioPlayer>();
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
 
         viewModel.StartRecordingCommand.Execute(null);
 
@@ -311,7 +330,7 @@ public class MainViewModelTests {
         recorder.When(r => r.StartRecording())
                 .Do(_ => throw new MicrophoneNotFoundException("No mic"));
         var player = Substitute.For<IAudioPlayer>();
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
 
         try {
             viewModel.StartRecordingCommand.Execute(null);
@@ -330,7 +349,7 @@ public class MainViewModelTests {
         var recorder = Substitute.For<IAudioRecorder>();
         recorder.IsRecording.Returns(false);
         var player = Substitute.For<IAudioPlayer>();
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
 
         viewModel.StopRecordingCommand.Execute(null);
 
@@ -344,7 +363,7 @@ public class MainViewModelTests {
         var recorder = Substitute.For<IAudioRecorder>();
         recorder.IsRecording.Returns(true, false);
         var player = Substitute.For<IAudioPlayer>();
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
 
         viewModel.StopRecordingCommand.Execute(null);
 
@@ -357,8 +376,9 @@ public class MainViewModelTests {
         using var context = CreateContext(connection);
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
-        var viewModel = new MainViewModel(recorder, player, context);
-        viewModel.SelectedRecording = CreateRecording(DateTime.UtcNow);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>()) {
+            SelectedRecording = CreateRecording(DateTime.UtcNow)
+        };
 
         viewModel.SelectedRecording = null;
 
@@ -372,7 +392,7 @@ public class MainViewModelTests {
         using var context = CreateContext(connection);
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
         var recording = CreateRecording(DateTime.UtcNow);
         recording.Title = "My Recording";
 
@@ -388,7 +408,7 @@ public class MainViewModelTests {
         using var context = CreateContext(connection);
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
         var recording = CreateRecording(DateTime.UtcNow);
         recording.Title = "";
 
@@ -403,7 +423,7 @@ public class MainViewModelTests {
         using var context = CreateContext(connection);
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
         var recording = CreateRecording(DateTime.UtcNow);
         recording.Title = "   ";
 
@@ -418,7 +438,7 @@ public class MainViewModelTests {
         using var context = CreateContext(connection);
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
 
         var changed = new List<string>();
         viewModel.PropertyChanged += (_, args) => {
@@ -438,7 +458,7 @@ public class MainViewModelTests {
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
 
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
 
         viewModel.AudioPlayer.Should().NotBeNull();
     }
@@ -450,7 +470,7 @@ public class MainViewModelTests {
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
 
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
 
         viewModel.DetailHeader.Should().Be("No recording selected");
     }
@@ -462,9 +482,517 @@ public class MainViewModelTests {
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
 
-        var viewModel = new MainViewModel(recorder, player, context);
+        var viewModel = new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
 
         viewModel.DetailBody.Should().Be("Select a recording from the list to view details.");
+    }
+
+    // ========== TranscriptDisplay tests ==========
+
+    [Fact]
+    public void TranscriptDisplay_WhenNoSelection_ShouldBeEmpty() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+
+        viewModel.TranscriptDisplay.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void TranscriptDisplay_WhenTranscribing_ShouldShowTranscribingMessage() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Transcribing;
+        recording.Transcript = null;
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.TranscriptDisplay.Should().Be("Transcribing...");
+    }
+
+    [Fact]
+    public void TranscriptDisplay_WhenFailed_ShouldShowFailedMessage() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Failed;
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.TranscriptDisplay.Should().Be("Transcription failed.");
+    }
+
+    [Fact]
+    public void TranscriptDisplay_WhenCompleteWithNullTranscript_ShouldShowNoSpeechDetected() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Complete;
+        recording.Transcript = null;
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.TranscriptDisplay.Should().Be("No speech detected.");
+    }
+
+    [Fact]
+    public void TranscriptDisplay_WhenCompleteWithEmptyTranscript_ShouldShowNoSpeechDetected() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Complete;
+        recording.Transcript = "";
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.TranscriptDisplay.Should().Be("No speech detected.");
+    }
+
+    [Fact]
+    public void TranscriptDisplay_WhenCompleteWithTranscript_ShouldShowTranscriptText() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Complete;
+        recording.Transcript = "The quick brown fox jumps over the lazy dog.";
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.TranscriptDisplay.Should().Be("The quick brown fox jumps over the lazy dog.");
+    }
+
+    [Fact]
+    public void TranscriptDisplay_WhenRecordingStatus_ShouldBeEmpty() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Recording;
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.TranscriptDisplay.Should().BeEmpty();
+    }
+
+    // ========== IsTranscribing tests ==========
+
+    [Fact]
+    public void IsTranscribing_WhenNoSelection_ShouldBeFalse() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+
+        viewModel.IsTranscribing.Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsTranscribing_WhenTranscribing_ShouldBeTrue() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Transcribing;
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.IsTranscribing.Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsTranscribing_WhenComplete_ShouldBeFalse() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Complete;
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.IsTranscribing.Should().BeFalse();
+    }
+
+    // ========== IsTranscriptionFailed tests ==========
+
+    [Fact]
+    public void IsTranscriptionFailed_WhenNoSelection_ShouldBeFalse() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+
+        viewModel.IsTranscriptionFailed.Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsTranscriptionFailed_WhenFailed_ShouldBeTrue() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Failed;
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.IsTranscriptionFailed.Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsTranscriptionFailed_WhenComplete_ShouldBeFalse() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Complete;
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.IsTranscriptionFailed.Should().BeFalse();
+    }
+
+    // ========== ShowTranscriptSection tests ==========
+
+    [Fact]
+    public void ShowTranscriptSection_WhenNoSelection_ShouldBeFalse() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+
+        viewModel.ShowTranscriptSection.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ShowTranscriptSection_WhenRecordingSelected_ShouldBeTrue() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+
+        viewModel.SelectedRecording = CreateRecording(DateTime.UtcNow);
+
+        viewModel.ShowTranscriptSection.Should().BeTrue();
+    }
+
+    // ========== PropertyChanged notification tests for transcript properties ==========
+
+    [Fact]
+    public void OnSelectedRecordingChanged_ShouldRaiseTranscriptDisplayPropertyChanged() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+
+        var changed = new List<string>();
+        viewModel.PropertyChanged += (_, args) => {
+            if (args.PropertyName is not null)
+                changed.Add(args.PropertyName);
+        };
+
+        viewModel.SelectedRecording = CreateRecording(DateTime.UtcNow);
+
+        changed.Should().Contain(nameof(MainViewModel.TranscriptDisplay));
+    }
+
+    [Fact]
+    public void OnSelectedRecordingChanged_ShouldRaiseIsTranscribingPropertyChanged() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+
+        var changed = new List<string>();
+        viewModel.PropertyChanged += (_, args) => {
+            if (args.PropertyName is not null)
+                changed.Add(args.PropertyName);
+        };
+
+        viewModel.SelectedRecording = CreateRecording(DateTime.UtcNow);
+
+        changed.Should().Contain(nameof(MainViewModel.IsTranscribing));
+    }
+
+    [Fact]
+    public void OnSelectedRecordingChanged_ShouldRaiseIsTranscriptionFailedPropertyChanged() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+
+        var changed = new List<string>();
+        viewModel.PropertyChanged += (_, args) => {
+            if (args.PropertyName is not null)
+                changed.Add(args.PropertyName);
+        };
+
+        viewModel.SelectedRecording = CreateRecording(DateTime.UtcNow);
+
+        changed.Should().Contain(nameof(MainViewModel.IsTranscriptionFailed));
+    }
+
+    [Fact]
+    public void OnSelectedRecordingChanged_ShouldRaiseShowTranscriptSectionPropertyChanged() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+
+        var changed = new List<string>();
+        viewModel.PropertyChanged += (_, args) => {
+            if (args.PropertyName is not null)
+                changed.Add(args.PropertyName);
+        };
+
+        viewModel.SelectedRecording = CreateRecording(DateTime.UtcNow);
+
+        changed.Should().Contain(nameof(MainViewModel.ShowTranscriptSection));
+    }
+
+    [Fact]
+    public void TranscriptDisplay_WhenSelectionCleared_ShouldReturnToEmpty() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Transcript = "Some transcript text";
+        viewModel.SelectedRecording = recording;
+
+        viewModel.SelectedRecording = null;
+
+        viewModel.TranscriptDisplay.Should().BeEmpty();
+        viewModel.IsTranscribing.Should().BeFalse();
+        viewModel.IsTranscriptionFailed.Should().BeFalse();
+        viewModel.ShowTranscriptSection.Should().BeFalse();
+    }
+
+    // ========== Constructor — null clipboardService ==========
+
+    [Fact]
+    public void Constructor_WithNullClipboardService_ShouldThrowArgumentNullException() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var recorder = Substitute.For<IAudioRecorder>();
+        var player = Substitute.For<IAudioPlayer>();
+
+        var act = () => new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), null!);
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("clipboardService");
+    }
+
+    // ========== CanCopyTranscript tests ==========
+
+    [Fact]
+    public void CanCopyTranscript_WhenNoSelection_ShouldBeFalse() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+
+        viewModel.CanCopyTranscript.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CanCopyTranscript_WhenTranscribing_ShouldBeFalse() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Transcribing;
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.CanCopyTranscript.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CanCopyTranscript_WhenFailed_ShouldBeFalse() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Failed;
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.CanCopyTranscript.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CanCopyTranscript_WhenCompleteWithNullTranscript_ShouldBeFalse() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Complete;
+        recording.Transcript = null;
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.CanCopyTranscript.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CanCopyTranscript_WhenCompleteWithEmptyTranscript_ShouldBeFalse() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Complete;
+        recording.Transcript = "";
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.CanCopyTranscript.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CanCopyTranscript_WhenCompleteWithTranscript_ShouldBeTrue() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Complete;
+        recording.Transcript = "Hello world";
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.CanCopyTranscript.Should().BeTrue();
+    }
+
+    [Fact]
+    public void OnSelectedRecordingChanged_ShouldRaiseCanCopyTranscriptPropertyChanged() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+
+        var changed = new List<string>();
+        viewModel.PropertyChanged += (_, args) => {
+            if (args.PropertyName is not null)
+                changed.Add(args.PropertyName);
+        };
+
+        viewModel.SelectedRecording = CreateRecording(DateTime.UtcNow);
+
+        changed.Should().Contain(nameof(MainViewModel.CanCopyTranscript));
+    }
+
+    // ========== CopyTranscriptCommand tests ==========
+
+    [Fact]
+    public async Task CopyTranscriptCommand_WhenCompleteWithTranscript_ShouldCopyTextToClipboard() {
+        await using var connection = CreateConnection();
+        await using var context = CreateContext(connection);
+        var clipboard = Substitute.For<IClipboardService>();
+        var viewModel = CreateViewModelWithClipboard(context, clipboard);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Complete;
+        recording.Transcript = "Hello world";
+        viewModel.SelectedRecording = recording;
+
+        await viewModel.CopyTranscriptCommand.ExecuteAsync(null);
+
+        await clipboard.Received(1).SetTextAsync("Hello world");
+    }
+
+    [Fact]
+    public async Task CopyTranscriptCommand_WhenNoTranscript_ShouldNotCallClipboard() {
+        await using var connection = CreateConnection();
+        await using var context = CreateContext(connection);
+        var clipboard = Substitute.For<IClipboardService>();
+        var viewModel = CreateViewModelWithClipboard(context, clipboard);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Complete;
+        recording.Transcript = null;
+        viewModel.SelectedRecording = recording;
+
+        await viewModel.CopyTranscriptCommand.ExecuteAsync(null);
+
+        await clipboard.DidNotReceive().SetTextAsync(Arg.Any<string>());
+    }
+
+    [Fact]
+    public async Task CopyTranscriptCommand_WhenTranscribing_ShouldNotCallClipboard() {
+        await using var connection = CreateConnection();
+        await using var context = CreateContext(connection);
+        var clipboard = Substitute.For<IClipboardService>();
+        var viewModel = CreateViewModelWithClipboard(context, clipboard);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Transcribing;
+        viewModel.SelectedRecording = recording;
+
+        await viewModel.CopyTranscriptCommand.ExecuteAsync(null);
+
+        await clipboard.DidNotReceive().SetTextAsync(Arg.Any<string>());
+    }
+
+    [Fact]
+    public async Task CopyTranscriptCommand_WhenNoSelection_ShouldNotCallClipboard() {
+        await using var connection = CreateConnection();
+        await using var context = CreateContext(connection);
+        var clipboard = Substitute.For<IClipboardService>();
+        var viewModel = CreateViewModelWithClipboard(context, clipboard);
+
+        await viewModel.CopyTranscriptCommand.ExecuteAsync(null);
+
+        await clipboard.DidNotReceive().SetTextAsync(Arg.Any<string>());
+    }
+
+    [Fact]
+    public async Task CopyTranscriptCommand_WhenExecuted_ShouldChangeLabelToCopied() {
+        await using var connection = CreateConnection();
+        await using var context = CreateContext(connection);
+        var clipboard = Substitute.For<IClipboardService>();
+        // Make SetTextAsync complete immediately
+        clipboard.SetTextAsync(Arg.Any<string>()).Returns(Task.CompletedTask);
+        var viewModel = CreateViewModelWithClipboard(context, clipboard);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Complete;
+        recording.Transcript = "Hello world";
+        viewModel.SelectedRecording = recording;
+
+        // Execute without awaiting the full delay — capture label change during execution
+        var task = viewModel.CopyTranscriptCommand.ExecuteAsync(null);
+
+        // After clipboard call but before delay completes, label should be "Copied!"
+        // We need to give a brief moment for the clipboard call to complete
+        await Task.Delay(50);
+        viewModel.CopyButtonLabel.Should().Be("Copied!");
+
+        // After full delay, label should reset
+        await task;
+        viewModel.CopyButtonLabel.Should().Be("Copy");
+    }
+
+    [Fact]
+    public void CopyButtonLabel_WhenNewInstance_ShouldBeCopy() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+
+        viewModel.CopyButtonLabel.Should().Be("Copy");
+    }
+
+    [Fact]
+    public void CopyButtonLabel_WhenSelectionChanges_ShouldResetToCopy() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(context);
+        viewModel.CopyButtonLabel = "Copied!";
+
+        viewModel.SelectedRecording = CreateRecording(DateTime.UtcNow);
+
+        viewModel.CopyButtonLabel.Should().Be("Copy");
+    }
+
+    // ========== Helper methods ==========
+
+    private static MainViewModel CreateViewModel(AppDbContext context) {
+        var recorder = Substitute.For<IAudioRecorder>();
+        var player = Substitute.For<IAudioPlayer>();
+        return new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), Substitute.For<IClipboardService>());
+    }
+
+    private static MainViewModel CreateViewModelWithClipboard(AppDbContext context, IClipboardService clipboard) {
+        var recorder = Substitute.For<IAudioRecorder>();
+        var player = Substitute.For<IAudioPlayer>();
+        return new MainViewModel(recorder, player, context, Substitute.For<ITranscriptionManager>(), clipboard);
     }
 
     private static SqliteConnection CreateConnection() {

@@ -25,5 +25,6 @@ global using VivaVoz.Data;
 global using VivaVoz.Models;
 global using VivaVoz.Services;
 global using VivaVoz.Services.Audio;
+global using VivaVoz.Services.Transcription;
 global using VivaVoz.ViewModels;
 global using VivaVoz.Views;

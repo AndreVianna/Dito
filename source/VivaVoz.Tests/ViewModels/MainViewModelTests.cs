@@ -975,6 +975,235 @@ public class MainViewModelTests {
         viewModel.CopyButtonLabel.Should().Be("Copy");
     }
 
+    // ========== PendingTranscription state tests ==========
+
+    [Fact]
+    public void TranscriptDisplay_WhenPendingTranscription_ShouldShowWaitingMessage() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(connection, context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.PendingTranscription;
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.TranscriptDisplay.Should().Be("Waiting to transcribe...");
+    }
+
+    [Fact]
+    public void IsTranscribing_WhenPendingTranscription_ShouldBeFalse() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(connection, context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.PendingTranscription;
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.IsTranscribing.Should().BeFalse();
+    }
+
+    // ========== CanRetranscribe tests ==========
+
+    [Fact]
+    public void CanRetranscribe_WhenNoSelection_ShouldBeFalse() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(connection, context);
+
+        viewModel.CanRetranscribe.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CanRetranscribe_WhenPendingTranscription_ShouldBeTrue() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(connection, context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.PendingTranscription;
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.CanRetranscribe.Should().BeTrue();
+    }
+
+    [Fact]
+    public void CanRetranscribe_WhenFailed_ShouldBeTrue() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(connection, context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Failed;
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.CanRetranscribe.Should().BeTrue();
+    }
+
+    [Fact]
+    public void CanRetranscribe_WhenComplete_ShouldBeTrue() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(connection, context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Complete;
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.CanRetranscribe.Should().BeTrue();
+    }
+
+    [Fact]
+    public void CanRetranscribe_WhenTranscribing_ShouldBeFalse() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(connection, context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Transcribing;
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.CanRetranscribe.Should().BeFalse();
+    }
+
+    [Fact]
+    public void CanRetranscribe_WhenRecording_ShouldBeFalse() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(connection, context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Recording;
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.CanRetranscribe.Should().BeFalse();
+    }
+
+    // ========== RetranscribeButtonLabel tests ==========
+
+    [Fact]
+    public void RetranscribeButtonLabel_WhenComplete_ShouldBeReTranscribe() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(connection, context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Complete;
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.RetranscribeButtonLabel.Should().Be("Re-transcribe");
+    }
+
+    [Fact]
+    public void RetranscribeButtonLabel_WhenFailed_ShouldBeTranscribe() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(connection, context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Failed;
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.RetranscribeButtonLabel.Should().Be("Transcribe");
+    }
+
+    [Fact]
+    public void RetranscribeButtonLabel_WhenPendingTranscription_ShouldBeTranscribe() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var viewModel = CreateViewModel(connection, context);
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.PendingTranscription;
+
+        viewModel.SelectedRecording = recording;
+
+        viewModel.RetranscribeButtonLabel.Should().Be("Transcribe");
+    }
+
+    // ========== RetranscribeCommand tests ==========
+
+    [Fact]
+    public void RetranscribeCommand_WhenExecuted_ShouldSetStatusToTranscribing() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var transcriptionManager = Substitute.For<ITranscriptionManager>();
+        var recorder = Substitute.For<IAudioRecorder>();
+        var player = Substitute.For<IAudioPlayer>();
+        var viewModel = new MainViewModel(recorder, player, context, transcriptionManager, Substitute.For<IClipboardService>());
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.PendingTranscription;
+        viewModel.SelectedRecording = recording;
+
+        viewModel.RetranscribeCommand.Execute(null);
+
+        recording.Status.Should().Be(RecordingStatus.Transcribing);
+    }
+
+    [Fact]
+    public void RetranscribeCommand_WhenExecuted_ShouldEnqueueTranscription() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var transcriptionManager = Substitute.For<ITranscriptionManager>();
+        var recorder = Substitute.For<IAudioRecorder>();
+        var player = Substitute.For<IAudioPlayer>();
+        var viewModel = new MainViewModel(recorder, player, context, transcriptionManager, Substitute.For<IClipboardService>());
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Failed;
+        viewModel.SelectedRecording = recording;
+
+        viewModel.RetranscribeCommand.Execute(null);
+
+        transcriptionManager.Received(1).EnqueueTranscription(recording.Id, Arg.Any<string>());
+    }
+
+    [Fact]
+    public void RetranscribeCommand_WhenExecuted_ShouldHideRetranscribeButton() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var transcriptionManager = Substitute.For<ITranscriptionManager>();
+        var recorder = Substitute.For<IAudioRecorder>();
+        var player = Substitute.For<IAudioPlayer>();
+        var viewModel = new MainViewModel(recorder, player, context, transcriptionManager, Substitute.For<IClipboardService>());
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.Complete;
+        viewModel.SelectedRecording = recording;
+
+        viewModel.RetranscribeCommand.Execute(null);
+
+        viewModel.CanRetranscribe.Should().BeFalse();
+    }
+
+    [Fact]
+    public void RetranscribeCommand_WhenNoSelection_ShouldNotEnqueueTranscription() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var transcriptionManager = Substitute.For<ITranscriptionManager>();
+        var recorder = Substitute.For<IAudioRecorder>();
+        var player = Substitute.For<IAudioPlayer>();
+        var viewModel = new MainViewModel(recorder, player, context, transcriptionManager, Substitute.For<IClipboardService>());
+
+        viewModel.RetranscribeCommand.Execute(null);
+
+        transcriptionManager.DidNotReceive().EnqueueTranscription(Arg.Any<Guid>(), Arg.Any<string>());
+    }
+
+    [Fact]
+    public void RetranscribeCommand_WhenExecuted_ShouldShowTranscribingSpinner() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var transcriptionManager = Substitute.For<ITranscriptionManager>();
+        var recorder = Substitute.For<IAudioRecorder>();
+        var player = Substitute.For<IAudioPlayer>();
+        var viewModel = new MainViewModel(recorder, player, context, transcriptionManager, Substitute.For<IClipboardService>());
+        var recording = CreateRecording(DateTime.UtcNow);
+        recording.Status = RecordingStatus.PendingTranscription;
+        viewModel.SelectedRecording = recording;
+
+        viewModel.RetranscribeCommand.Execute(null);
+
+        viewModel.IsTranscribing.Should().BeTrue();
+    }
+
     // ========== Helper methods ==========
 
     private static MainViewModel CreateViewModel(SqliteConnection connection, AppDbContext context) {

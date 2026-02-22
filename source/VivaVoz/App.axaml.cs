@@ -7,6 +7,7 @@ public partial class App : Application {
     public override async void OnFrameworkInitializationCompleted() {
         InitializeFileSystem();
         var dbContext = InitializeDatabase();
+        await RecoverOrphanedTranscriptionsAsync(dbContext);
         var settingsService = new SettingsService(() => new AppDbContext());
         await settingsService.LoadSettingsAsync();
         var recorderService = new AudioRecorderService();
@@ -34,5 +35,20 @@ public partial class App : Application {
         var dbContext = new AppDbContext();
         dbContext.Database.Migrate();
         return dbContext;
+    }
+
+    private static async Task RecoverOrphanedTranscriptionsAsync(AppDbContext dbContext) {
+        var orphaned = await dbContext.Recordings
+            .Where(r => r.Status == RecordingStatus.Transcribing)
+            .ToListAsync();
+
+        if (orphaned.Count == 0) return;
+
+        foreach (var recording in orphaned) {
+            recording.Status = RecordingStatus.PendingTranscription;
+        }
+
+        await dbContext.SaveChangesAsync();
+        Log.Information("[App] Reset {Count} orphaned Transcribing recording(s) to PendingTranscription.", orphaned.Count);
     }
 }

@@ -64,7 +64,9 @@ public class SettingsService : ISettingsService {
         ExportFormat = "MP3",
         HotkeyConfig = string.Empty,
         AudioInputDevice = null,
-        AutoUpdate = false
+        AutoUpdate = false,
+        MinimizeToTray = true,
+        StartMinimized = false
     };
 
     private static string GetDefaultStoragePath() {

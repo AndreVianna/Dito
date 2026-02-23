@@ -5,34 +5,6 @@ using Xunit;
 namespace VivaVoz.Tests.Services;
 
 public class TrayServiceTests {
-    // ========== TrayIconState enum ==========
-
-    [Fact]
-    public void TrayIconState_ShouldHaveIdleValue() {
-        var state = TrayIconState.Idle;
-
-        state.Should().Be(TrayIconState.Idle);
-    }
-
-    [Fact]
-    public void TrayIconState_ShouldHaveRecordingValue() {
-        var state = TrayIconState.Recording;
-
-        state.Should().Be(TrayIconState.Recording);
-    }
-
-    [Fact]
-    public void TrayIconState_ShouldHaveTranscribingValue() {
-        var state = TrayIconState.Transcribing;
-
-        state.Should().Be(TrayIconState.Transcribing);
-    }
-
-    [Fact]
-    public void TrayIconState_IdleShouldNotEqualRecording() {
-        TrayIconState.Idle.Should().NotBe(TrayIconState.Recording);
-    }
-
     // ========== TrayService.FormatTooltipText ==========
 
     [Fact]
@@ -75,6 +47,22 @@ public class TrayServiceTests {
         result.Should().NotContain("...");
     }
 
+    [Fact]
+    public void FormatTooltipText_With31CharTranscript_ShouldTruncateWithEllipsis() {
+        var transcript = new string('a', 31); // boundary: one over the limit
+
+        var result = TrayService.FormatTooltipText(transcript);
+
+        result.Should().Be($"VivaVoz — {new string('a', 30)}...");
+    }
+
+    [Fact]
+    public void FormatTooltipText_WithWhitespaceOnly_ShouldReturnDefaultText() {
+        var result = TrayService.FormatTooltipText("   ");
+
+        result.Should().Be("VivaVoz — No speech detected.");
+    }
+
     // ========== TrayService.GetTooltipForState ==========
 
     [Fact]
@@ -96,5 +84,14 @@ public class TrayServiceTests {
         var result = TrayService.GetTooltipForState(TrayIconState.Transcribing);
 
         result.Should().Be("VivaVoz — Transcribing...");
+    }
+
+    [Fact]
+    public void GetTooltipForState_WithInvalidEnumValue_ShouldReturnDefault() {
+        var invalidState = (TrayIconState)999;
+
+        var result = TrayService.GetTooltipForState(invalidState);
+
+        result.Should().Be("VivaVoz");
     }
 }

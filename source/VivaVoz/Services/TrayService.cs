@@ -153,7 +153,7 @@ public class TrayService : ITrayService {
 
     // Testable static helpers
     public static string FormatTooltipText(string? transcript) {
-        if (string.IsNullOrEmpty(transcript))
+        if (string.IsNullOrWhiteSpace(transcript))
             return "VivaVoz — No speech detected.";
 
         if (transcript.Length <= 30)

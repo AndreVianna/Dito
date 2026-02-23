@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Microsoft.EntityFrameworkCore;
@@ -43,7 +44,8 @@ public partial class App : Application {
 
             if (settingsService.Current?.StartMinimized == true) {
                 mainWindow.ShowInTaskbar = false;
-                // Window stays hidden; tray icon is visible. Show() called on first tray click.
+                mainWindow.WindowState = WindowState.Minimized;
+                mainWindow.Opened += (_, _) => mainWindow.Hide();
             }
 
             desktop.ShutdownRequested += (_, _) => trayService.Dispose();

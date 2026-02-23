@@ -16,8 +16,11 @@ public partial class MainWindow : Window {
         _settingsService = settingsService;
     }
 
+    public static bool ShouldMinimizeToTray(ISettingsService? settingsService)
+        => settingsService?.Current?.MinimizeToTray == true;
+
     protected override void OnClosing(WindowClosingEventArgs e) {
-        if (_settingsService?.Current?.MinimizeToTray == true) {
+        if (ShouldMinimizeToTray(_settingsService)) {
             e.Cancel = true;
             Hide();
             return;

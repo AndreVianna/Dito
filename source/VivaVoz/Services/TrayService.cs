@@ -58,7 +58,7 @@ public class TrayService : ITrayService {
             Menu = menu,
             IsVisible = true
         };
-        _trayIcon.Clicked += (_, _) => ShowMainWindow();
+        _trayIcon.Clicked += (_, _) => OnToggleRecordingClicked(null, EventArgs.Empty);
 
         _recorder.RecordingStopped += OnRecordingStopped;
         _transcriptionManager.TranscriptionCompleted += OnTranscriptionCompleted;

@@ -8,6 +8,7 @@ public partial class MainViewModel : ObservableObject {
     private readonly ISettingsService _settingsService;
     private readonly IModelManager _modelManager;
     public AudioPlayerViewModel AudioPlayer { get; }
+    public RecordingDetailViewModel Detail { get; }
 
     [ObservableProperty]
     public partial ObservableCollection<Recording> Recordings { get; set; } = [];
@@ -98,7 +99,9 @@ public partial class MainViewModel : ObservableObject {
         ITranscriptionManager transcriptionManager,
         IClipboardService clipboardService,
         ISettingsService? settingsService = null,
-        IModelManager? modelManager = null) {
+        IModelManager? modelManager = null,
+        IRecordingService? recordingService = null,
+        IDialogService? dialogService = null) {
         _recorder = recorder ?? throw new ArgumentNullException(nameof(recorder));
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _transcriptionManager = transcriptionManager ?? throw new ArgumentNullException(nameof(transcriptionManager));
@@ -106,6 +109,10 @@ public partial class MainViewModel : ObservableObject {
         _settingsService = settingsService ?? new SettingsService(() => new AppDbContext());
         _modelManager = modelManager ?? new WhisperModelService(new WhisperModelManager(), new System.Net.Http.HttpClient());
         AudioPlayer = new AudioPlayerViewModel(audioPlayer ?? throw new ArgumentNullException(nameof(audioPlayer)));
+        Detail = new RecordingDetailViewModel(
+            recordingService ?? new RecordingService(() => new AppDbContext()),
+            dialogService ?? new DialogService());
+        Detail.RecordingDeleted += OnRecordingDeleted;
 
 #pragma warning disable IDE0305, IDE0028 // Simplify collection initialization
         Recordings = new ObservableCollection<Recording>(
@@ -205,6 +212,7 @@ public partial class MainViewModel : ObservableObject {
         OnPropertyChanged(nameof(NoSelection));
         NotifyTranscriptProperties();
         AudioPlayer.LoadRecording(value);
+        Detail.LoadRecording(value);
 
         if (value is null) {
             DetailHeader = "No recording selected";
@@ -215,6 +223,14 @@ public partial class MainViewModel : ObservableObject {
         var title = string.IsNullOrWhiteSpace(value.Title) ? "Recording selected" : value.Title;
         DetailHeader = title;
         DetailBody = "Detail view placeholder.";
+    }
+
+    internal void OnRecordingDeleted(object? sender, Guid id) {
+        var recording = Recordings.FirstOrDefault(r => r.Id == id);
+        if (recording is null) return;
+        Recordings.Remove(recording);
+        ApplyFilter();
+        SelectedRecording = null;
     }
 
     private void NotifyTranscriptProperties() {
@@ -289,6 +305,7 @@ public partial class MainViewModel : ObservableObject {
             if (SelectedRecording?.Id == e.RecordingId) {
                 OnPropertyChanged(nameof(SelectedRecording));
                 NotifyTranscriptProperties();
+                Detail.LoadRecording(SelectedRecording);
             }
         });
 

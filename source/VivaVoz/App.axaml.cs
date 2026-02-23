@@ -32,10 +32,12 @@ public partial class App : Application {
         var whisperEngine = new WhisperTranscriptionEngine(modelManager);
         var transcriptionManager = new TranscriptionManager(whisperEngine, () => new AppDbContext());
         var clipboardService = new ClipboardService();
+        var recordingService = new RecordingService(() => new AppDbContext());
+        var dialogService = new DialogService();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             var mainWindow = new MainWindow(settingsService) {
-                DataContext = new MainViewModel(recorderService, audioPlayerService, dbContext, transcriptionManager, clipboardService, settingsService, modelService)
+                DataContext = new MainViewModel(recorderService, audioPlayerService, dbContext, transcriptionManager, clipboardService, settingsService, modelService, recordingService, dialogService)
             };
 
             var overlayViewModel = new RecordingOverlayViewModel(recorderService);

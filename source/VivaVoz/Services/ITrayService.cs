@@ -7,6 +7,7 @@ public enum TrayIconState {
 }
 
 public interface ITrayService : IDisposable {
+    void Initialize();
     void SetState(TrayIconState state);
     void ShowTranscriptionComplete(string? transcript);
 }

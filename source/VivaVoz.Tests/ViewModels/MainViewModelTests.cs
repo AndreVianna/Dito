@@ -1130,13 +1130,20 @@ public class MainViewModelTests {
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
         var viewModel = new MainViewModel(recorder, player, context, transcriptionManager, Substitute.For<IClipboardService>());
-        var recording = CreateRecording(DateTime.UtcNow);
-        recording.Status = RecordingStatus.PendingTranscription;
-        viewModel.SelectedRecording = recording;
+        var tempFile = Path.GetTempFileName();
+        try {
+            var recording = CreateRecording(DateTime.UtcNow);
+            recording.AudioFileName = tempFile;
+            recording.Status = RecordingStatus.PendingTranscription;
+            viewModel.SelectedRecording = recording;
 
-        viewModel.RetranscribeCommand.Execute(null);
+            viewModel.RetranscribeCommand.Execute(null);
 
-        recording.Status.Should().Be(RecordingStatus.Transcribing);
+            recording.Status.Should().Be(RecordingStatus.Transcribing);
+        }
+        finally {
+            File.Delete(tempFile);
+        }
     }
 
     [Fact]
@@ -1147,13 +1154,20 @@ public class MainViewModelTests {
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
         var viewModel = new MainViewModel(recorder, player, context, transcriptionManager, Substitute.For<IClipboardService>());
-        var recording = CreateRecording(DateTime.UtcNow);
-        recording.Status = RecordingStatus.Failed;
-        viewModel.SelectedRecording = recording;
+        var tempFile = Path.GetTempFileName();
+        try {
+            var recording = CreateRecording(DateTime.UtcNow);
+            recording.AudioFileName = tempFile;
+            recording.Status = RecordingStatus.Failed;
+            viewModel.SelectedRecording = recording;
 
-        viewModel.RetranscribeCommand.Execute(null);
+            viewModel.RetranscribeCommand.Execute(null);
 
-        transcriptionManager.Received(1).EnqueueTranscription(recording.Id, Arg.Any<string>());
+            transcriptionManager.Received(1).EnqueueTranscription(recording.Id, Arg.Any<string>());
+        }
+        finally {
+            File.Delete(tempFile);
+        }
     }
 
     [Fact]
@@ -1164,13 +1178,20 @@ public class MainViewModelTests {
         var recorder = Substitute.For<IAudioRecorder>();
         var player = Substitute.For<IAudioPlayer>();
         var viewModel = new MainViewModel(recorder, player, context, transcriptionManager, Substitute.For<IClipboardService>());
-        var recording = CreateRecording(DateTime.UtcNow);
-        recording.Status = RecordingStatus.Complete;
-        viewModel.SelectedRecording = recording;
+        var tempFile = Path.GetTempFileName();
+        try {
+            var recording = CreateRecording(DateTime.UtcNow);
+            recording.AudioFileName = tempFile;
+            recording.Status = RecordingStatus.Complete;
+            viewModel.SelectedRecording = recording;
 
-        viewModel.RetranscribeCommand.Execute(null);
+            viewModel.RetranscribeCommand.Execute(null);
 
-        viewModel.CanRetranscribe.Should().BeFalse();
+            viewModel.CanRetranscribe.Should().BeFalse();
+        }
+        finally {
+            File.Delete(tempFile);
+        }
     }
 
     [Fact]
@@ -1188,7 +1209,7 @@ public class MainViewModelTests {
     }
 
     [Fact]
-    public void RetranscribeCommand_WhenExecuted_ShouldShowTranscribingSpinner() {
+    public void RetranscribeCommand_WhenAudioFileMissing_ShouldSetStatusToFailed() {
         using var connection = CreateConnection();
         using var context = CreateContext(connection);
         var transcriptionManager = Substitute.For<ITranscriptionManager>();
@@ -1196,12 +1217,38 @@ public class MainViewModelTests {
         var player = Substitute.For<IAudioPlayer>();
         var viewModel = new MainViewModel(recorder, player, context, transcriptionManager, Substitute.For<IClipboardService>());
         var recording = CreateRecording(DateTime.UtcNow);
+        recording.AudioFileName = "nonexistent.wav";
         recording.Status = RecordingStatus.PendingTranscription;
         viewModel.SelectedRecording = recording;
 
         viewModel.RetranscribeCommand.Execute(null);
 
-        viewModel.IsTranscribing.Should().BeTrue();
+        recording.Status.Should().Be(RecordingStatus.Failed);
+        transcriptionManager.DidNotReceive().EnqueueTranscription(Arg.Any<Guid>(), Arg.Any<string>());
+    }
+
+    [Fact]
+    public void RetranscribeCommand_WhenExecuted_ShouldShowTranscribingSpinner() {
+        using var connection = CreateConnection();
+        using var context = CreateContext(connection);
+        var transcriptionManager = Substitute.For<ITranscriptionManager>();
+        var recorder = Substitute.For<IAudioRecorder>();
+        var player = Substitute.For<IAudioPlayer>();
+        var viewModel = new MainViewModel(recorder, player, context, transcriptionManager, Substitute.For<IClipboardService>());
+        var tempFile = Path.GetTempFileName();
+        try {
+            var recording = CreateRecording(DateTime.UtcNow);
+            recording.AudioFileName = tempFile;
+            recording.Status = RecordingStatus.PendingTranscription;
+            viewModel.SelectedRecording = recording;
+
+            viewModel.RetranscribeCommand.Execute(null);
+
+            viewModel.IsTranscribing.Should().BeTrue();
+        }
+        finally {
+            File.Delete(tempFile);
+        }
     }
 
     // ========== Helper methods ==========

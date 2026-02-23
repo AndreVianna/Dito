@@ -156,6 +156,11 @@ public partial class MainViewModel : ObservableObject {
     private void Retranscribe() {
         if (SelectedRecording is null) return;
         var audioPath = Path.Combine(FilePaths.AudioDirectory, SelectedRecording.AudioFileName);
+        if (!File.Exists(audioPath)) {
+            SelectedRecording.Status = RecordingStatus.Failed;
+            NotifyTranscriptProperties();
+            return;
+        }
         SelectedRecording.Status = RecordingStatus.Transcribing;
         NotifyTranscriptProperties();
         _transcriptionManager.EnqueueTranscription(SelectedRecording.Id, audioPath);

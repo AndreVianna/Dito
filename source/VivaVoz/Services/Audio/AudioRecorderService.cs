@@ -49,6 +49,15 @@ public sealed class AudioRecorderService : IAudioRecorder {
         }
     }
 
+    public IReadOnlyList<string> GetAvailableDevices() {
+        var devices = new List<string>();
+        for (var i = 0; i < WaveInEvent.DeviceCount; i++) {
+            devices.Add(WaveInEvent.GetCapabilities(i).ProductName);
+        }
+
+        return devices.AsReadOnly();
+    }
+
     public void StopRecording() {
         WaveInEvent? waveIn;
 

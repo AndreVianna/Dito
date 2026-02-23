@@ -1,0 +1,109 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:VivaVoz.ViewModels"
+        x:Class="VivaVoz.Views.SettingsWindow"
+        Title="Settings"
+        Width="480"
+        MinHeight="400"
+        SizeToContent="Height"
+        MaxHeight="700"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner">
+  <ScrollViewer>
+    <StackPanel Spacing="24" Margin="24">
+
+      <!-- General -->
+      <StackPanel Spacing="12">
+        <TextBlock Text="General" FontSize="16" FontWeight="SemiBold" />
+
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="Run at Startup" VerticalAlignment="Center" />
+          <CheckBox Grid.Column="1" IsChecked="{Binding RunAtStartup}" />
+        </Grid>
+
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="Minimize to Tray on Close" VerticalAlignment="Center" />
+          <CheckBox Grid.Column="1" IsChecked="{Binding MinimizeToTray}" />
+        </Grid>
+
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="Theme" VerticalAlignment="Center" />
+          <ComboBox Grid.Column="1"
+                    ItemsSource="{x:Static vm:SettingsViewModel.AvailableThemes}"
+                    SelectedItem="{Binding Theme}"
+                    MinWidth="120" />
+        </Grid>
+      </StackPanel>
+
+      <!-- Recording -->
+      <StackPanel Spacing="12">
+        <TextBlock Text="Recording" FontSize="16" FontWeight="SemiBold" />
+
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="Input Device" VerticalAlignment="Center" />
+          <ComboBox Grid.Column="1"
+                    ItemsSource="{Binding AvailableDevices}"
+                    SelectedItem="{Binding AudioInputDevice}"
+                    MinWidth="180"
+                    PlaceholderText="Default device" />
+        </Grid>
+
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="Hotkey" VerticalAlignment="Center" />
+          <TextBox Grid.Column="1"
+                   Text="{Binding HotkeyConfig}"
+                   Watermark="e.g. Ctrl+Alt+R"
+                   MinWidth="140" />
+        </Grid>
+
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="Recording Mode" VerticalAlignment="Center" />
+          <ComboBox Grid.Column="1"
+                    ItemsSource="{x:Static vm:SettingsViewModel.AvailableRecordingModes}"
+                    SelectedItem="{Binding RecordingMode}"
+                    MinWidth="140" />
+        </Grid>
+      </StackPanel>
+
+      <!-- Transcription -->
+      <StackPanel Spacing="12">
+        <TextBlock Text="Transcription" FontSize="16" FontWeight="SemiBold" />
+
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="Model" VerticalAlignment="Center" />
+          <ComboBox Grid.Column="1"
+                    ItemsSource="{x:Static vm:SettingsViewModel.AvailableModels}"
+                    SelectedItem="{Binding WhisperModelSize}"
+                    MinWidth="120" />
+        </Grid>
+
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="Language" VerticalAlignment="Center" />
+          <ComboBox Grid.Column="1"
+                    ItemsSource="{x:Static vm:SettingsViewModel.AvailableLanguages}"
+                    SelectedItem="{Binding Language}"
+                    MinWidth="120" />
+        </Grid>
+      </StackPanel>
+
+      <!-- Storage -->
+      <StackPanel Spacing="12">
+        <TextBlock Text="Storage" FontSize="16" FontWeight="SemiBold" />
+
+        <StackPanel Spacing="4">
+          <TextBlock Text="Location" FontSize="12" Opacity="0.7" />
+          <TextBox Text="{Binding StoragePath}" />
+        </StackPanel>
+
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="Export Format" VerticalAlignment="Center" />
+          <ComboBox Grid.Column="1"
+                    ItemsSource="{x:Static vm:SettingsViewModel.AvailableExportFormats}"
+                    SelectedItem="{Binding ExportFormat}"
+                    MinWidth="100" />
+        </Grid>
+      </StackPanel>
+
+    </StackPanel>
+  </ScrollViewer>
+</Window>

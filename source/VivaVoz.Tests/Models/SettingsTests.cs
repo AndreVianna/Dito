@@ -53,4 +53,18 @@ public class SettingsTests {
 
         settings.StartMinimized.Should().BeFalse();
     }
+
+    [Fact]
+    public void NewSettings_ShouldDefaultRunAtStartupToFalse() {
+        var settings = new Settings();
+
+        settings.RunAtStartup.Should().BeFalse();
+    }
+
+    [Fact]
+    public void NewSettings_ShouldDefaultRecordingModeToToggle() {
+        var settings = new Settings();
+
+        settings.RecordingMode.Should().Be("Toggle");
+    }
 }

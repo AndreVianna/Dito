@@ -86,5 +86,11 @@ public sealed class AppDbContext : DbContext {
         settings.Property(s => s.StartMinimized)
             .IsRequired()
             .HasDefaultValue(false);
+        settings.Property(s => s.RunAtStartup)
+            .IsRequired()
+            .HasDefaultValue(false);
+        settings.Property(s => s.RecordingMode)
+            .IsRequired()
+            .HasDefaultValue("Toggle");
     }
 }

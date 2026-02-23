@@ -8,4 +8,6 @@ public interface IAudioRecorder {
     void StartRecording();
 
     void StopRecording();
+
+    IReadOnlyList<string> GetAvailableDevices();
 }

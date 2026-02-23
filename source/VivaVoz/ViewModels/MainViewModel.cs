@@ -277,6 +277,22 @@ public partial class MainViewModel : ObservableObject {
         }
     }
 
+    [RelayCommand]
+    [ExcludeFromCodeCoverage]
+    private void OpenSettings() {
+        var settingsWindow = new SettingsWindow {
+            DataContext = new SettingsViewModel(_settingsService, _recorder)
+        };
+
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
+            && desktop.MainWindow is not null) {
+            settingsWindow.ShowDialog(desktop.MainWindow);
+            return;
+        }
+
+        settingsWindow.Show();
+    }
+
     [ExcludeFromCodeCoverage]
     private static void ShowMicrophoneNotFoundDialog(string message) {
         var text = string.IsNullOrWhiteSpace(message)

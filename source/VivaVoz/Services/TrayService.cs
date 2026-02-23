@@ -20,7 +20,7 @@ public class TrayService : ITrayService {
     private TrayIconState _currentState = TrayIconState.Idle;
     private int _activeTranscriptions;
 
-    private const string IdleIconUri = "avares://VivaVoz/Assets/vivavoz-mono-16x16.png";
+    private const string IdleIconUri = "avares://VivaVoz/Assets/vivavoz-16x16.png";
     private const string ActiveIconUri = "avares://VivaVoz/Assets/vivavoz-16x16.png";
 
     public TrayService(

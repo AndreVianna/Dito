@@ -38,6 +38,17 @@ public partial class App : Application {
                 DataContext = new MainViewModel(recorderService, audioPlayerService, dbContext, transcriptionManager, clipboardService, settingsService, modelService)
             };
 
+            var overlayViewModel = new RecordingOverlayViewModel(recorderService);
+            var overlayWindow = new RecordingOverlayWindow(settingsService) { DataContext = overlayViewModel };
+
+            overlayViewModel.PropertyChanged += (_, e) => {
+                if (e.PropertyName != nameof(RecordingOverlayViewModel.IsRecording)) return;
+                if (overlayViewModel.IsRecording)
+                    overlayWindow.ShowOverlay();
+                else
+                    overlayWindow.Hide();
+            };
+
             var trayService = new TrayService(desktop, recorderService, transcriptionManager);
             trayService.Initialize();
 

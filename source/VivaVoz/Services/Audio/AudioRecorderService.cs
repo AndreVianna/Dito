@@ -9,6 +9,8 @@ public sealed class AudioRecorderService : IAudioRecorder {
     private string? _currentFilePath;
     private long _bytesWritten;
 
+    public event EventHandler? RecordingStarted;
+
     public event EventHandler<AudioRecordingStoppedEventArgs>? RecordingStopped;
 
     public bool IsRecording { get; private set; }
@@ -46,6 +48,7 @@ public sealed class AudioRecorderService : IAudioRecorder {
             IsRecording = true;
 
             Log.Information("[AudioRecorderService] Recording started: {FilePath}", _currentFilePath);
+            RecordingStarted?.Invoke(this, EventArgs.Empty);
         }
     }
 

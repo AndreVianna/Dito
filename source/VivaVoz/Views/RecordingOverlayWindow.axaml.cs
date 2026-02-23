@@ -19,8 +19,7 @@ public partial class RecordingOverlayWindow : Window {
     /// <summary>Shows the overlay without stealing keyboard focus from the active window.</summary>
     public void ShowOverlay() => Show();
 
-    protected override void OnPointerPressed(PointerPressedEventArgs e) {
-        base.OnPointerPressed(e);
+    private void OnBorderPointerPressed(object? sender, PointerPressedEventArgs e) {
         if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
             BeginMoveDrag(e);
     }

@@ -15,8 +15,9 @@
         Cursor="Hand">
   <Border Background="#CC1A1A1A"
           CornerRadius="26"
-          Padding="14,0">
-    <Grid ColumnDefinitions="Auto,*,Auto"
+          Padding="14,0"
+          PointerPressed="OnBorderPointerPressed">
+    <Grid ColumnDefinitions="Auto,Auto,Auto,Auto"
           VerticalAlignment="Center"
           Height="52">
 
@@ -50,14 +51,14 @@
                  FontWeight="Medium"
                  FontFamily="Monospace"
                  VerticalAlignment="Center"
-                 HorizontalAlignment="Center" />
+                 Margin="0,0,10,0" />
 
       <!-- Waveform bars (mock animation) -->
       <StackPanel Grid.Column="2"
                   Orientation="Horizontal"
                   Spacing="2"
                   VerticalAlignment="Center"
-                  Margin="10,0,0,0">
+                  Margin="0,0,10,0">
         <Rectangle Width="3" Fill="White" Opacity="0.7" RadiusX="1.5" RadiusY="1.5">
           <Rectangle.Styles>
             <Style Selector="Rectangle">
@@ -119,6 +120,17 @@
           </Rectangle.Styles>
         </Rectangle>
       </StackPanel>
+
+      <!-- Stop button -->
+      <Button Grid.Column="3"
+              Content="■ Stop"
+              Command="{Binding StopRecordingCommand}"
+              Padding="8,4"
+              VerticalAlignment="Center"
+              Foreground="White"
+              Background="#4D4D4D"
+              CornerRadius="12"
+              Cursor="Arrow" />
 
     </Grid>
   </Border>

@@ -110,7 +110,7 @@
         <Grid ColumnDefinitions="*,Auto">
           <TextBlock Text="Active Model" VerticalAlignment="Center" />
           <ComboBox Grid.Column="1"
-                    ItemsSource="{x:Static vm:SettingsViewModel.AvailableModels}"
+                    ItemsSource="{Binding InstalledModels}"
                     SelectedItem="{Binding WhisperModelSize}"
                     MinWidth="120" />
         </Grid>

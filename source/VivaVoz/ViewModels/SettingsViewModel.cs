@@ -32,6 +32,8 @@ public partial class SettingsViewModel : ObservableObject {
 
     public ObservableCollection<ModelItemViewModel> Models { get; }
 
+    public IReadOnlyList<string> InstalledModels => [.. Models.Where(m => m.IsInstalled).Select(m => m.ModelId)];
+
     [ObservableProperty]
     public partial string WhisperModelSize { get; set; }
 
@@ -96,6 +98,12 @@ public partial class SettingsViewModel : ObservableObject {
         AvailableDevices = recorder.GetAvailableDevices();
 
         Models = [.. modelManager.GetAvailableModelIds().Select(id => new ModelItemViewModel(id, modelManager, SelectModel))];
+
+        foreach (var model in Models)
+            model.PropertyChanged += (_, args) => {
+                if (args.PropertyName == nameof(ModelItemViewModel.IsInstalled))
+                    OnPropertyChanged(nameof(InstalledModels));
+            };
 
         UpdateModelSelection(WhisperModelSize);
 

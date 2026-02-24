@@ -334,7 +334,7 @@ public partial class MainViewModel : ObservableObject {
     [ExcludeFromCodeCoverage]
     private void OpenSettings() {
         var settingsWindow = new SettingsWindow {
-            DataContext = new SettingsViewModel(_settingsService, _recorder, _modelManager)
+            DataContext = new SettingsViewModel(_settingsService, _recorder, _modelManager, new Services.ThemeService())
         };
 
         if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop

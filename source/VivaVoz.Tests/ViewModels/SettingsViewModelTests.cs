@@ -16,8 +16,9 @@ public class SettingsViewModelTests {
     public void Constructor_WithNullSettingsService_ShouldThrowArgumentNullException() {
         var recorder = Substitute.For<IAudioRecorder>();
         var modelManager = Substitute.For<IModelManager>();
+        var themeService = Substitute.For<IThemeService>();
 
-        var act = () => new SettingsViewModel(null!, recorder, modelManager);
+        var act = () => new SettingsViewModel(null!, recorder, modelManager, themeService);
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("settingsService");
     }
@@ -27,8 +28,9 @@ public class SettingsViewModelTests {
         var service = Substitute.For<ISettingsService>();
         service.Current.Returns(new Settings());
         var modelManager = Substitute.For<IModelManager>();
+        var themeService = Substitute.For<IThemeService>();
 
-        var act = () => new SettingsViewModel(service, null!, modelManager);
+        var act = () => new SettingsViewModel(service, null!, modelManager, themeService);
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("recorder");
     }
@@ -38,17 +40,18 @@ public class SettingsViewModelTests {
         var service = Substitute.For<ISettingsService>();
         service.Current.Returns(new Settings());
         var recorder = Substitute.For<IAudioRecorder>();
+        var themeService = Substitute.For<IThemeService>();
 
-        var act = () => new SettingsViewModel(service, recorder, null!);
+        var act = () => new SettingsViewModel(service, recorder, null!, themeService);
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("modelManager");
     }
 
     [Fact]
     public void Constructor_WithValidDependencies_ShouldNotThrow() {
-        var (service, recorder, modelManager) = CreateDependencies();
+        var (service, recorder, modelManager, themeService) = CreateDependencies();
 
-        var act = () => new SettingsViewModel(service, recorder, modelManager);
+        var act = () => new SettingsViewModel(service, recorder, modelManager, themeService);
 
         act.Should().NotThrow();
     }
@@ -57,90 +60,90 @@ public class SettingsViewModelTests {
 
     [Fact]
     public void Constructor_ShouldInitializeWhisperModelSizeFromSettings() {
-        var (service, recorder, modelManager) = CreateDependencies(s => s.WhisperModelSize = "base");
+        var (service, recorder, modelManager, themeService) = CreateDependencies(s => s.WhisperModelSize = "base");
 
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.WhisperModelSize.Should().Be("base");
     }
 
     [Fact]
     public void Constructor_ShouldInitializeAudioInputDeviceFromSettings() {
-        var (service, recorder, modelManager) = CreateDependencies(s => s.AudioInputDevice = "USB Mic");
+        var (service, recorder, modelManager, themeService) = CreateDependencies(s => s.AudioInputDevice = "USB Mic");
 
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.AudioInputDevice.Should().Be("USB Mic");
     }
 
     [Fact]
     public void Constructor_ShouldInitializeStoragePathFromSettings() {
-        var (service, recorder, modelManager) = CreateDependencies(s => s.StoragePath = "/custom/path");
+        var (service, recorder, modelManager, themeService) = CreateDependencies(s => s.StoragePath = "/custom/path");
 
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.StoragePath.Should().Be("/custom/path");
     }
 
     [Fact]
     public void Constructor_ShouldInitializeExportFormatFromSettings() {
-        var (service, recorder, modelManager) = CreateDependencies(s => s.ExportFormat = "WAV");
+        var (service, recorder, modelManager, themeService) = CreateDependencies(s => s.ExportFormat = "WAV");
 
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.ExportFormat.Should().Be("WAV");
     }
 
     [Fact]
     public void Constructor_ShouldInitializeThemeFromSettings() {
-        var (service, recorder, modelManager) = CreateDependencies(s => s.Theme = "Dark");
+        var (service, recorder, modelManager, themeService) = CreateDependencies(s => s.Theme = "Dark");
 
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.Theme.Should().Be("Dark");
     }
 
     [Fact]
     public void Constructor_ShouldInitializeLanguageFromSettings() {
-        var (service, recorder, modelManager) = CreateDependencies(s => s.Language = "en");
+        var (service, recorder, modelManager, themeService) = CreateDependencies(s => s.Language = "en");
 
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.Language.Should().Be("en");
     }
 
     [Fact]
     public void Constructor_ShouldInitializeRunAtStartupFromSettings() {
-        var (service, recorder, modelManager) = CreateDependencies(s => s.RunAtStartup = true);
+        var (service, recorder, modelManager, themeService) = CreateDependencies(s => s.RunAtStartup = true);
 
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.RunAtStartup.Should().BeTrue();
     }
 
     [Fact]
     public void Constructor_ShouldInitializeMinimizeToTrayFromSettings() {
-        var (service, recorder, modelManager) = CreateDependencies(s => s.MinimizeToTray = false);
+        var (service, recorder, modelManager, themeService) = CreateDependencies(s => s.MinimizeToTray = false);
 
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.MinimizeToTray.Should().BeFalse();
     }
 
     [Fact]
     public void Constructor_ShouldInitializeHotkeyConfigFromSettings() {
-        var (service, recorder, modelManager) = CreateDependencies(s => s.HotkeyConfig = "Ctrl+Alt+R");
+        var (service, recorder, modelManager, themeService) = CreateDependencies(s => s.HotkeyConfig = "Ctrl+Alt+R");
 
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.HotkeyConfig.Should().Be("Ctrl+Alt+R");
     }
 
     [Fact]
     public void Constructor_ShouldInitializeRecordingModeFromSettings() {
-        var (service, recorder, modelManager) = CreateDependencies(s => s.RecordingMode = "Push-to-Talk");
+        var (service, recorder, modelManager, themeService) = CreateDependencies(s => s.RecordingMode = "Push-to-Talk");
 
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.RecordingMode.Should().Be("Push-to-Talk");
     }
@@ -153,8 +156,9 @@ public class SettingsViewModelTests {
         recorder.GetAvailableDevices().Returns([]);
         var modelManager = Substitute.For<IModelManager>();
         modelManager.GetAvailableModelIds().Returns([]);
+        var themeService = Substitute.For<IThemeService>();
 
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.WhisperModelSize.Should().Be("tiny");
         vm.Theme.Should().Be("System");
@@ -165,20 +169,20 @@ public class SettingsViewModelTests {
 
     [Fact]
     public void Constructor_ShouldPopulateAvailableDevicesFromRecorder() {
-        var (service, recorder, modelManager) = CreateDependencies();
+        var (service, recorder, modelManager, themeService) = CreateDependencies();
         recorder.GetAvailableDevices().Returns(["Mic A", "Mic B"]);
 
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.AvailableDevices.Should().Equal("Mic A", "Mic B");
     }
 
     [Fact]
     public void Constructor_WhenNoDevices_ShouldHaveEmptyAvailableDevices() {
-        var (service, recorder, modelManager) = CreateDependencies();
+        var (service, recorder, modelManager, themeService) = CreateDependencies();
         recorder.GetAvailableDevices().Returns([]);
 
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.AvailableDevices.Should().BeEmpty();
     }
@@ -187,10 +191,10 @@ public class SettingsViewModelTests {
 
     [Fact]
     public void Constructor_ShouldPopulateModelsFromModelManager() {
-        var (service, recorder, modelManager) = CreateDependencies();
+        var (service, recorder, modelManager, themeService) = CreateDependencies();
         modelManager.GetAvailableModelIds().Returns(["tiny", "base", "small"]);
 
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.Models.Should().HaveCount(3);
         vm.Models.Select(m => m.ModelId).Should().Equal("tiny", "base", "small");
@@ -198,22 +202,22 @@ public class SettingsViewModelTests {
 
     [Fact]
     public void Constructor_WhenNoModels_ShouldHaveEmptyModelsCollection() {
-        var (service, recorder, modelManager) = CreateDependencies();
+        var (service, recorder, modelManager, themeService) = CreateDependencies();
         modelManager.GetAvailableModelIds().Returns([]);
 
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.Models.Should().BeEmpty();
     }
 
     [Fact]
     public void Constructor_ShouldSetIsInstalledOnModelItemsFromModelManager() {
-        var (service, recorder, modelManager) = CreateDependencies();
+        var (service, recorder, modelManager, themeService) = CreateDependencies();
         modelManager.GetAvailableModelIds().Returns(["tiny", "base"]);
         modelManager.IsModelDownloaded("tiny").Returns(true);
         modelManager.IsModelDownloaded("base").Returns(false);
 
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.Models.First(m => m.ModelId == "tiny").IsInstalled.Should().BeTrue();
         vm.Models.First(m => m.ModelId == "base").IsInstalled.Should().BeFalse();
@@ -258,8 +262,8 @@ public class SettingsViewModelTests {
 
     [Fact]
     public void WhisperModelSize_WhenChanged_ShouldCallSaveSettingsAsync() {
-        var (service, recorder, modelManager) = CreateDependencies();
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var (service, recorder, modelManager, themeService) = CreateDependencies();
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.WhisperModelSize = "large";
 
@@ -268,8 +272,8 @@ public class SettingsViewModelTests {
 
     [Fact]
     public void AudioInputDevice_WhenChanged_ShouldCallSaveSettingsAsync() {
-        var (service, recorder, modelManager) = CreateDependencies();
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var (service, recorder, modelManager, themeService) = CreateDependencies();
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.AudioInputDevice = "USB Mic";
 
@@ -278,8 +282,8 @@ public class SettingsViewModelTests {
 
     [Fact]
     public void StoragePath_WhenChanged_ShouldCallSaveSettingsAsync() {
-        var (service, recorder, modelManager) = CreateDependencies();
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var (service, recorder, modelManager, themeService) = CreateDependencies();
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.StoragePath = "/new/path";
 
@@ -288,8 +292,8 @@ public class SettingsViewModelTests {
 
     [Fact]
     public void ExportFormat_WhenChanged_ShouldCallSaveSettingsAsync() {
-        var (service, recorder, modelManager) = CreateDependencies();
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var (service, recorder, modelManager, themeService) = CreateDependencies();
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.ExportFormat = "OGG";
 
@@ -298,8 +302,8 @@ public class SettingsViewModelTests {
 
     [Fact]
     public void Theme_WhenChanged_ShouldCallSaveSettingsAsync() {
-        var (service, recorder, modelManager) = CreateDependencies();
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var (service, recorder, modelManager, themeService) = CreateDependencies();
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.Theme = "Dark";
 
@@ -308,8 +312,8 @@ public class SettingsViewModelTests {
 
     [Fact]
     public void Language_WhenChanged_ShouldCallSaveSettingsAsync() {
-        var (service, recorder, modelManager) = CreateDependencies();
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var (service, recorder, modelManager, themeService) = CreateDependencies();
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.Language = "fr";
 
@@ -318,8 +322,8 @@ public class SettingsViewModelTests {
 
     [Fact]
     public void RunAtStartup_WhenChanged_ShouldCallSaveSettingsAsync() {
-        var (service, recorder, modelManager) = CreateDependencies();
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var (service, recorder, modelManager, themeService) = CreateDependencies();
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.RunAtStartup = true;
 
@@ -328,8 +332,8 @@ public class SettingsViewModelTests {
 
     [Fact]
     public void MinimizeToTray_WhenChanged_ShouldCallSaveSettingsAsync() {
-        var (service, recorder, modelManager) = CreateDependencies();
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var (service, recorder, modelManager, themeService) = CreateDependencies();
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.MinimizeToTray = false;
 
@@ -338,8 +342,8 @@ public class SettingsViewModelTests {
 
     [Fact]
     public void HotkeyConfig_WhenChanged_ShouldCallSaveSettingsAsync() {
-        var (service, recorder, modelManager) = CreateDependencies();
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var (service, recorder, modelManager, themeService) = CreateDependencies();
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.HotkeyConfig = "Ctrl+Shift+R";
 
@@ -348,8 +352,8 @@ public class SettingsViewModelTests {
 
     [Fact]
     public void RecordingMode_WhenChanged_ShouldCallSaveSettingsAsync() {
-        var (service, recorder, modelManager) = CreateDependencies();
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var (service, recorder, modelManager, themeService) = CreateDependencies();
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         vm.RecordingMode = "Push-to-Talk";
 
@@ -360,9 +364,9 @@ public class SettingsViewModelTests {
 
     [Fact]
     public void Constructor_ShouldNotCallSaveSettingsAsyncDuringInitialization() {
-        var (service, recorder, modelManager) = CreateDependencies();
+        var (service, recorder, modelManager, themeService) = CreateDependencies();
 
-        _ = new SettingsViewModel(service, recorder, modelManager);
+        _ = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         service.DidNotReceive().SaveSettingsAsync(Arg.Any<Settings>());
     }
@@ -371,8 +375,8 @@ public class SettingsViewModelTests {
 
     [Fact]
     public void WhisperModelSize_WhenChanged_ShouldRaisePropertyChanged() {
-        var (service, recorder, modelManager) = CreateDependencies();
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var (service, recorder, modelManager, themeService) = CreateDependencies();
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         var changed = new List<string>();
         vm.PropertyChanged += (_, args) => {
@@ -387,8 +391,8 @@ public class SettingsViewModelTests {
 
     [Fact]
     public void Theme_WhenChanged_ShouldRaisePropertyChanged() {
-        var (service, recorder, modelManager) = CreateDependencies();
-        var vm = new SettingsViewModel(service, recorder, modelManager);
+        var (service, recorder, modelManager, themeService) = CreateDependencies();
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
 
         var changed = new List<string>();
         vm.PropertyChanged += (_, args) => {
@@ -403,7 +407,7 @@ public class SettingsViewModelTests {
 
     // ========== Helper methods ==========
 
-    private static (ISettingsService service, IAudioRecorder recorder, IModelManager modelManager) CreateDependencies(
+    private static (ISettingsService service, IAudioRecorder recorder, IModelManager modelManager, IThemeService themeService) CreateDependencies(
         Action<Settings>? configure = null) {
         var settings = new Settings();
         configure?.Invoke(settings);
@@ -418,6 +422,8 @@ public class SettingsViewModelTests {
         var modelManager = Substitute.For<IModelManager>();
         modelManager.GetAvailableModelIds().Returns([]);
 
-        return (service, recorder, modelManager);
+        var themeService = Substitute.For<IThemeService>();
+
+        return (service, recorder, modelManager, themeService);
     }
 }

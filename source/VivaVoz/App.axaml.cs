@@ -25,6 +25,8 @@ public partial class App : Application {
         await RecoverOrphanedTranscriptionsAsync(dbContext);
         var settingsService = new SettingsService(() => new AppDbContext());
         await settingsService.LoadSettingsAsync();
+        var themeService = new ThemeService();
+        themeService.ApplyTheme(settingsService.Current?.Theme ?? "System");
         var recorderService = new AudioRecorderService();
         var audioPlayerService = new AudioPlayerService();
         var modelManager = new WhisperModelManager();

@@ -3,6 +3,7 @@ namespace VivaVoz.ViewModels;
 public partial class SettingsViewModel : ObservableObject {
     private readonly ISettingsService _settingsService;
     private readonly IModelManager _modelManager;
+    private readonly IThemeService _themeService;
     private readonly Settings _settings;
     private bool _isInitializing = true;
 
@@ -46,10 +47,11 @@ public partial class SettingsViewModel : ObservableObject {
     [ObservableProperty]
     public partial string RecordingMode { get; set; }
 
-    public SettingsViewModel(ISettingsService settingsService, IAudioRecorder recorder, IModelManager modelManager) {
+    public SettingsViewModel(ISettingsService settingsService, IAudioRecorder recorder, IModelManager modelManager, IThemeService themeService) {
         _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
         ArgumentNullException.ThrowIfNull(recorder);
         _modelManager = modelManager ?? throw new ArgumentNullException(nameof(modelManager));
+        _themeService = themeService ?? throw new ArgumentNullException(nameof(themeService));
 
         _settings = settingsService.Current ?? new Settings();
 
@@ -76,7 +78,10 @@ public partial class SettingsViewModel : ObservableObject {
     partial void OnAudioInputDeviceChanged(string? value) => SaveSetting(s => s.AudioInputDevice = value);
     partial void OnStoragePathChanged(string value) => SaveSetting(s => s.StoragePath = value);
     partial void OnExportFormatChanged(string value) => SaveSetting(s => s.ExportFormat = value);
-    partial void OnThemeChanged(string value) => SaveSetting(s => s.Theme = value);
+    partial void OnThemeChanged(string value) {
+        SaveSetting(s => s.Theme = value);
+        if (!_isInitializing) _themeService.ApplyTheme(value);
+    }
     partial void OnLanguageChanged(string value) => SaveSetting(s => s.Language = value);
     partial void OnRunAtStartupChanged(bool value) => SaveSetting(s => s.RunAtStartup = value);
     partial void OnMinimizeToTrayChanged(bool value) => SaveSetting(s => s.MinimizeToTray = value);

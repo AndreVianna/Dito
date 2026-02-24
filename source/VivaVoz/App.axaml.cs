@@ -21,10 +21,12 @@ public partial class App : Application {
         var clipboardService = new ClipboardService();
         var recordingService = new RecordingService(() => new AppDbContext());
         var dialogService = new DialogService();
+        var exportService = new ExportService();
+        var crashRecoveryService = new CrashRecoveryService();
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             var mainWindow = new MainWindow(settingsService) {
-                DataContext = new MainViewModel(recorderService, audioPlayerService, dbContext, transcriptionManager, clipboardService, settingsService, modelService, recordingService, dialogService)
+                DataContext = new MainViewModel(recorderService, audioPlayerService, dbContext, transcriptionManager, clipboardService, settingsService, modelService, recordingService, dialogService, exportService, crashRecoveryService)
             };
 
             var overlayViewModel = new RecordingOverlayViewModel(recorderService);

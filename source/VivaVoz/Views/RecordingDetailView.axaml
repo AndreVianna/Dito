@@ -89,6 +89,20 @@
                     FontSize="12"
                     Padding="8,2"
                     VerticalAlignment="Center" />
+            <!-- Export transcript button -->
+            <Button Command="{Binding ExportTextCommand}"
+                    Content="Export Text"
+                    IsVisible="{Binding CanExportText}"
+                    FontSize="12"
+                    Padding="8,2"
+                    VerticalAlignment="Center" />
+            <!-- Export audio button -->
+            <Button Command="{Binding ExportAudioCommand}"
+                    Content="Export Audio"
+                    IsVisible="{Binding HasSelection}"
+                    FontSize="12"
+                    Padding="8,2"
+                    VerticalAlignment="Center" />
             <!-- (Re-)Transcribe button -->
             <Button Command="{Binding RetranscribeCommand}"
                     Content="{Binding RetranscribeButtonLabel}"

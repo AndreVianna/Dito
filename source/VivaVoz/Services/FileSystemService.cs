@@ -7,7 +7,8 @@ public sealed class FileSystemService {
             FilePaths.DataDirectory,
             FilePaths.AudioDirectory,
             FilePaths.ModelsDirectory,
-            FilePaths.LogsDirectory
+            FilePaths.LogsDirectory,
+            FilePaths.RecoveryDirectory
         };
 
         foreach (var directory in directories) {

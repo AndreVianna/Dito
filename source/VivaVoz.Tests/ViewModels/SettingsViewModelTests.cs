@@ -238,7 +238,7 @@ public class SettingsViewModelTests {
     public void AvailableModels_ShouldContainWhisperSizes() {
         SettingsViewModel.AvailableModels.Should().Contain("tiny");
         SettingsViewModel.AvailableModels.Should().Contain("base");
-        SettingsViewModel.AvailableModels.Should().Contain("large");
+        SettingsViewModel.AvailableModels.Should().Contain("large-v3");
     }
 
     [Fact]

@@ -12,7 +12,7 @@ public partial class SettingsViewModel : ObservableObject {
     private readonly bool _isInitializing = true;
 
     public static IReadOnlyList<string> AvailableThemes { get; } = ["System", "Light", "Dark"];
-    public static IReadOnlyList<string> AvailableModels { get; } = ["tiny", "base", "small", "medium", "large"];
+    public static IReadOnlyList<string> AvailableModels { get; } = ["tiny", "base", "small", "medium", "large-v3"];
     public static IReadOnlyList<string> AvailableExportFormats { get; } = ["MP3", "WAV", "OGG", "TXT", "MD"];
     public static IReadOnlyList<string> AvailableRecordingModes { get; } = ["Toggle", "Push-to-Talk"];
     public static IReadOnlyList<string> AvailableLanguages { get; } = ["auto", "en", "fr", "de", "es", "pt", "it", "ja", "zh"];

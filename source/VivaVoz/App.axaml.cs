@@ -48,6 +48,23 @@ public partial class App : Application {
                 DataContext = new MainViewModel(recorderService, audioPlayerService, dbContext, transcriptionManager, clipboardService, settingsService, modelService, recordingService, dialogService, exportService, crashRecoveryService, notificationService, trayIconService: trayIconService, hotkeyService: hotkeyService)
             };
 
+            // Show the onboarding wizard on first launch
+            if (!(settingsService.Current?.HasCompletedOnboarding ?? false)) {
+                mainWindow.Opened += async (_, _) => {
+                    var onboardingVm = new OnboardingViewModel(
+                        settingsService, modelService, recorderService, whisperEngine);
+                    var onboardingWindow = new OnboardingWindow { DataContext = onboardingVm };
+                    onboardingVm.WizardCompleted += (_, _) => onboardingWindow.Close();
+                    await onboardingWindow.ShowDialog(mainWindow);
+
+                    // Re-register hotkey in case user changed it during onboarding
+                    var updatedHotkey = HotkeyConfig.Parse(settingsService.Current?.HotkeyConfig);
+                    hotkeyService.TryRegister(
+                        updatedHotkey ?? HotkeyConfig.Default,
+                        settingsService.Current?.RecordingMode ?? "Toggle");
+                };
+            }
+
             var overlayViewModel = new RecordingOverlayViewModel(recorderService);
             var overlayWindow = new RecordingOverlayWindow(settingsService) { DataContext = overlayViewModel };
 

@@ -4,7 +4,7 @@
         x:Class="VivaVoz.Views.OnboardingWindow"
         Title="Welcome to VivaVoz"
         Width="560"
-        Height="480"
+        Height="500"
         CanResize="False"
         WindowStartupLocation="CenterScreen"
         Icon="avares://VivaVoz/Assets/vivavoz.ico">
@@ -12,28 +12,20 @@
   <Grid RowDefinitions="Auto,*,Auto">
 
     <!-- Step indicator bar -->
-    <Border Grid.Row="0" Padding="24,16" BorderThickness="0,0,0,1" BorderBrush="#1FFFFFFF">
+    <Border Grid.Row="0" Padding="24,14" BorderThickness="0,0,0,1" BorderBrush="#1FFFFFFF">
       <Grid ColumnDefinitions="*,Auto">
         <TextBlock Grid.Column="0"
                    Text="Getting Started"
-                   FontSize="13"
-                   Opacity="0.6"
+                   FontSize="12"
+                   Opacity="0.5"
                    VerticalAlignment="Center" />
-        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-          <!-- Step dots -->
-          <Ellipse Width="8" Height="8"
-                   Fill="{Binding IsStep1, Converter={x:Static BoolConverters.IsTrue}, ConverterParameter='#FFFFFF'}"
-                   Opacity="{Binding IsStep1, Converter={x:Static BoolConverters.IsTrue}, ConverterParameter='1.0'}" />
-          <Ellipse Width="8" Height="8"
-                   Fill="{Binding IsStep2, Converter={x:Static BoolConverters.IsTrue}, ConverterParameter='#FFFFFF'}"
-                   Opacity="{Binding IsStep2, Converter={x:Static BoolConverters.IsTrue}, ConverterParameter='1.0'}" />
-          <Ellipse Width="8" Height="8"
-                   Fill="{Binding IsStep3, Converter={x:Static BoolConverters.IsTrue}, ConverterParameter='#FFFFFF'}"
-                   Opacity="{Binding IsStep3, Converter={x:Static BoolConverters.IsTrue}, ConverterParameter='1.0'}" />
-          <Ellipse Width="8" Height="8"
-                   Fill="{Binding IsStep4, Converter={x:Static BoolConverters.IsTrue}, ConverterParameter='#FFFFFF'}"
-                   Opacity="{Binding IsStep4, Converter={x:Static BoolConverters.IsTrue}, ConverterParameter='1.0'}" />
-        </StackPanel>
+
+        <!-- Simple step counter -->
+        <TextBlock Grid.Column="1"
+                   FontSize="12"
+                   Opacity="0.5"
+                   VerticalAlignment="Center"
+                   Text="{Binding CurrentStepDisplay, StringFormat='Step {0} of 4'}" />
       </Grid>
     </Border>
 
@@ -45,8 +37,7 @@
         <StackPanel IsVisible="{Binding IsStep1}"
                     Spacing="20"
                     Margin="40,32"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center">
+                    HorizontalAlignment="Stretch">
 
           <Image Source="avares://VivaVoz/Assets/vivavoz.ico"
                  Width="72" Height="72"
@@ -59,12 +50,12 @@
 
           <TextBlock Text="Your voice, alive."
                      FontSize="16"
-                     Opacity="0.7"
+                     Opacity="0.65"
                      HorizontalAlignment="Center" />
 
-          <StackPanel Spacing="12" Margin="0,8,0,0">
-            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" ColumnSpacing="12">
-              <TextBlock Grid.Column="0" Text="🎙" FontSize="20" VerticalAlignment="Center" />
+          <StackPanel Spacing="16" Margin="0,12,0,0">
+            <Grid ColumnDefinitions="32,*" ColumnSpacing="12">
+              <TextBlock Grid.Column="0" Text="🎙" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" />
               <StackPanel Grid.Column="1" Spacing="2">
                 <TextBlock Text="Record" FontWeight="SemiBold" />
                 <TextBlock Text="Capture your voice with a single hotkey from anywhere."
@@ -72,20 +63,20 @@
               </StackPanel>
             </Grid>
 
-            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" ColumnSpacing="12">
-              <TextBlock Grid.Column="0" Text="✏️" FontSize="20" VerticalAlignment="Center" />
+            <Grid ColumnDefinitions="32,*" ColumnSpacing="12">
+              <TextBlock Grid.Column="0" Text="✏️" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" />
               <StackPanel Grid.Column="1" Spacing="2">
                 <TextBlock Text="Transcribe" FontWeight="SemiBold" />
-                <TextBlock Text="Instantly convert speech to text using Whisper AI."
+                <TextBlock Text="Instantly convert speech to text using Whisper AI — on-device, no cloud."
                            FontSize="12" Opacity="0.6" TextWrapping="Wrap" />
               </StackPanel>
             </Grid>
 
-            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" ColumnSpacing="12">
-              <TextBlock Grid.Column="0" Text="📋" FontSize="20" VerticalAlignment="Center" />
+            <Grid ColumnDefinitions="32,*" ColumnSpacing="12">
+              <TextBlock Grid.Column="0" Text="📋" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" />
               <StackPanel Grid.Column="1" Spacing="2">
                 <TextBlock Text="Paste" FontWeight="SemiBold" />
-                <TextBlock Text="Automatically copy text to clipboard and paste anywhere."
+                <TextBlock Text="Automatically copy transcribed text to clipboard and paste anywhere."
                            FontSize="12" Opacity="0.6" TextWrapping="Wrap" />
               </StackPanel>
             </Grid>
@@ -93,7 +84,7 @@
 
           <TextBlock Text="Let's set up VivaVoz in a few quick steps."
                      FontSize="13"
-                     Opacity="0.6"
+                     Opacity="0.55"
                      HorizontalAlignment="Center"
                      Margin="0,8,0,0" />
         </StackPanel>
@@ -107,9 +98,9 @@
                      FontSize="22"
                      FontWeight="Bold" />
 
-          <TextBlock Text="Base is pre-selected and works great. Download Medium or Large for better accuracy on complex speech."
+          <TextBlock Text="Base is pre-selected and works great. Download Medium or Large for better accuracy on complex or accented speech."
                      FontSize="13"
-                     Opacity="0.7"
+                     Opacity="0.65"
                      TextWrapping="Wrap" />
 
           <ItemsControl ItemsSource="{Binding Models}">
@@ -179,7 +170,7 @@
 
           <TextBlock Text="You can always download more models later in Settings."
                      FontSize="12"
-                     Opacity="0.5"
+                     Opacity="0.45"
                      Margin="0,4,0,0" />
         </StackPanel>
 
@@ -192,9 +183,9 @@
                      FontSize="22"
                      FontWeight="Bold" />
 
-          <TextBlock Text="Press Record, speak a few words, then press Stop. VivaVoz will transcribe your test recording so you can see it in action."
+          <TextBlock Text="Press Record, say a few words, then press Stop. VivaVoz will transcribe it so you can see it working."
                      FontSize="13"
-                     Opacity="0.7"
+                     Opacity="0.65"
                      TextWrapping="Wrap" />
 
           <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
@@ -210,44 +201,46 @@
           </StackPanel>
 
           <Border IsVisible="{Binding IsTestRecording}"
-                  Background="#3300FF00"
-                  BorderBrush="#4400FF00"
+                  Background="#1800CC00"
+                  BorderBrush="#3300BB00"
                   BorderThickness="1"
                   CornerRadius="6"
                   Padding="12,8">
-            <TextBlock Text="🔴  Recording... speak now"
-                       FontSize="13"
-                       Foreground="#88FF88" />
+            <TextBlock Text="🔴  Recording — speak now"
+                       FontSize="13" />
           </Border>
 
           <Border IsVisible="{Binding IsTestTranscribing}"
-                  Background="#33FFFFFF"
+                  Background="#18FFFFFF"
+                  BorderBrush="#18FFFFFF"
+                  BorderThickness="1"
                   CornerRadius="6"
                   Padding="12,8">
             <TextBlock Text="⏳  Transcribing..."
                        FontSize="13"
-                       Opacity="0.8" />
+                       Opacity="0.75" />
           </Border>
 
           <Border IsVisible="{Binding HasTestRecorded}"
-                  Background="#1AFFFFFF"
-                  BorderBrush="#1FFFFFFF"
+                  Background="#12FFFFFF"
+                  BorderBrush="#18FFFFFF"
                   BorderThickness="1"
                   CornerRadius="6"
-                  Padding="12,10">
-            <StackPanel Spacing="4">
+                  Padding="14,12">
+            <StackPanel Spacing="6">
               <TextBlock Text="Transcription result:"
                          FontSize="11"
-                         Opacity="0.55" />
+                         Opacity="0.5" />
               <TextBlock Text="{Binding TestTranscript}"
                          FontSize="14"
                          TextWrapping="Wrap" />
             </StackPanel>
           </Border>
 
-          <TextBlock Text="You can skip this step if you want to set up later."
+          <TextBlock Text="You can skip this step — your microphone can be configured anytime in Settings."
                      FontSize="12"
-                     Opacity="0.5"
+                     Opacity="0.45"
+                     TextWrapping="Wrap"
                      Margin="0,4,0,0" />
         </StackPanel>
 
@@ -260,20 +253,20 @@
                      FontSize="22"
                      FontWeight="Bold" />
 
-          <TextBlock Text="Use this hotkey to start and stop recording from anywhere — even when VivaVoz is in the background."
+          <TextBlock Text="Use this hotkey to start and stop recording from anywhere — even when VivaVoz is running in the background."
                      FontSize="13"
-                     Opacity="0.7"
+                     Opacity="0.65"
                      TextWrapping="Wrap" />
 
-          <Border Background="#1AFFFFFF"
-                  BorderBrush="#1FFFFFFF"
+          <Border Background="#12FFFFFF"
+                  BorderBrush="#18FFFFFF"
                   BorderThickness="1"
                   CornerRadius="8"
                   Padding="20,16">
             <StackPanel Spacing="12">
               <TextBlock Text="Current hotkey:"
                          FontSize="12"
-                         Opacity="0.55" />
+                         Opacity="0.5" />
               <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
                 <TextBlock Text="{Binding HotkeyDisplayText}"
                            FontSize="20"
@@ -288,31 +281,21 @@
               <TextBlock IsVisible="{Binding IsListeningForHotkey}"
                          Text="Press your desired key combination now..."
                          FontSize="12"
-                         Foreground="#AAAAFF"
+                         Opacity="0.65"
                          FontStyle="Italic" />
             </StackPanel>
           </Border>
 
-          <StackPanel Spacing="8" Margin="0,4,0,0">
-            <TextBlock Text="Tips:"
-                       FontSize="12"
-                       Opacity="0.6"
-                       FontWeight="SemiBold" />
-            <TextBlock Text="• Press the hotkey once to start recording, press it again to stop."
-                       FontSize="12"
-                       Opacity="0.55"
-                       TextWrapping="Wrap" />
+          <StackPanel Spacing="6" Margin="0,4,0,0">
+            <TextBlock Text="• Press the hotkey once to start recording, again to stop."
+                       FontSize="12" Opacity="0.55" TextWrapping="Wrap" />
             <TextBlock Text="• Works globally — even when other apps are in focus."
-                       FontSize="12"
-                       Opacity="0.55"
-                       TextWrapping="Wrap" />
+                       FontSize="12" Opacity="0.55" TextWrapping="Wrap" />
             <TextBlock Text="• You can change this anytime in Settings."
-                       FontSize="12"
-                       Opacity="0.55"
-                       TextWrapping="Wrap" />
+                       FontSize="12" Opacity="0.55" TextWrapping="Wrap" />
           </StackPanel>
 
-          <TextBlock Text="Click Finish to start using VivaVoz!"
+          <TextBlock Text="You're all set! Click Finish to start using VivaVoz."
                      FontSize="14"
                      FontWeight="Medium"
                      Opacity="0.8"
@@ -324,7 +307,7 @@
 
     <!-- Navigation buttons -->
     <Border Grid.Row="2"
-            Padding="24,16"
+            Padding="24,14"
             BorderThickness="0,1,0,0"
             BorderBrush="#1FFFFFFF">
       <Grid ColumnDefinitions="Auto,*,Auto,Auto">
@@ -334,13 +317,6 @@
                 Command="{Binding PreviousCommand}"
                 IsVisible="{Binding CanGoPrevious}"
                 Padding="16,8" />
-
-        <TextBlock Grid.Column="1"
-                   Text="{Binding CurrentStep, StringFormat='Step {0} of 4', Converter={x:Static converters:StepToDisplayConverter.Instance}}"
-                   VerticalAlignment="Center"
-                   HorizontalAlignment="Center"
-                   Opacity="0.45"
-                   FontSize="12" />
 
         <Button Grid.Column="2"
                 Content="Next →"

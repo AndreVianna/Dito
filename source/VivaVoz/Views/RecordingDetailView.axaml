@@ -83,35 +83,22 @@
                          Width="80"
                          Height="4"
                          VerticalAlignment="Center" />
-            <!-- Copy to clipboard button -->
-            <Button Command="{Binding CopyTranscriptCommand}"
-                    Content="{Binding CopyButtonLabel}"
-                    IsVisible="{Binding CanCopyTranscript}"
-                    FontSize="12"
-                    Padding="8,2"
-                    VerticalAlignment="Center" />
-            <!-- Export transcript button -->
-            <Button Command="{Binding ExportTextCommand}"
-                    Content="Export Text"
-                    IsVisible="{Binding CanExportText}"
-                    FontSize="12"
-                    Padding="8,2"
-                    VerticalAlignment="Center" />
-            <!-- Export audio button -->
-            <Button Command="{Binding ExportAudioCommand}"
-                    Content="Export Audio"
-                    IsVisible="{Binding CanExportAudio}"
-                    FontSize="12"
-                    Padding="8,2"
-                    VerticalAlignment="Center" />
-            <!-- (Re-)Transcribe button -->
+            <!-- Zone 1: Transcribed-with info -->
+            <TextBlock Text="{Binding TranscribedWithInfo}"
+                       FontSize="11"
+                       Opacity="0.6"
+                       VerticalAlignment="Center"
+                       IsVisible="{Binding TranscribedWithInfo, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+            <!-- Separator -->
+            <TextBlock Text="|" Opacity="0.3" VerticalAlignment="Center" Margin="4,0"
+                       IsVisible="{Binding CanRetranscribe}" />
+            <!-- Zone 2: [Re-Transcribe] with [Model ▾] -->
             <Button Command="{Binding RetranscribeCommand}"
                     Content="{Binding RetranscribeButtonLabel}"
                     IsVisible="{Binding CanRetranscribe}"
                     FontSize="12"
                     Padding="8,2"
                     VerticalAlignment="Center" />
-            <!-- "with [Model ▾]" picker -->
             <TextBlock Text="with"
                        FontSize="12"
                        Opacity="0.6"
@@ -130,13 +117,28 @@
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
-            <!-- Transcribed-with badge -->
-            <TextBlock Text="{Binding TranscribedWithInfo}"
-                       FontSize="11"
-                       Opacity="0.6"
-                       VerticalAlignment="Center"
-                       IsVisible="{Binding TranscribedWithInfo, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
-            <!-- Edit button (visible when not editing) -->
+            <!-- Separator -->
+            <TextBlock Text="|" Opacity="0.3" VerticalAlignment="Center" Margin="4,0"
+                       IsVisible="{Binding CanCopyTranscript}" />
+            <!-- Zone 3: Utility actions -->
+            <Button Command="{Binding CopyTranscriptCommand}"
+                    Content="{Binding CopyButtonLabel}"
+                    IsVisible="{Binding CanCopyTranscript}"
+                    FontSize="12"
+                    Padding="8,2"
+                    VerticalAlignment="Center" />
+            <Button Command="{Binding ExportTextCommand}"
+                    Content="Export Text"
+                    IsVisible="{Binding CanExportText}"
+                    FontSize="12"
+                    Padding="8,2"
+                    VerticalAlignment="Center" />
+            <Button Command="{Binding ExportAudioCommand}"
+                    Content="Export Audio"
+                    IsVisible="{Binding CanExportAudio}"
+                    FontSize="12"
+                    Padding="8,2"
+                    VerticalAlignment="Center" />
             <Button Command="{Binding Detail.EditCommand}"
                     Content="Edit"
                     IsVisible="{Binding Detail.IsNotEditing}"

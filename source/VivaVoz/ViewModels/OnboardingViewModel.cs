@@ -16,10 +16,11 @@ public partial class OnboardingViewModel : ObservableObject {
     [ObservableProperty]
     public partial int CurrentStep { get; set; } = 0;
 
-    public bool IsFirstStep => CurrentStep == 0;
-    public bool IsLastStep  => CurrentStep == 3;
-    public bool CanGoPrevious => CurrentStep > 0;
-    public bool CanGoNext    => !IsLastStep;
+    public bool IsFirstStep      => CurrentStep == 0;
+    public bool IsLastStep       => CurrentStep == 3;
+    public bool CanGoPrevious    => CurrentStep > 0;
+    public bool CanGoNext        => !IsLastStep;
+    public int  CurrentStepDisplay => CurrentStep + 1;
 
     // Visibility helpers for step panels
     public bool IsStep1 => CurrentStep == 0;
@@ -90,6 +91,7 @@ public partial class OnboardingViewModel : ObservableObject {
         OnPropertyChanged(nameof(IsLastStep));
         OnPropertyChanged(nameof(CanGoPrevious));
         OnPropertyChanged(nameof(CanGoNext));
+        OnPropertyChanged(nameof(CurrentStepDisplay));
         OnPropertyChanged(nameof(IsStep1));
         OnPropertyChanged(nameof(IsStep2));
         OnPropertyChanged(nameof(IsStep3));

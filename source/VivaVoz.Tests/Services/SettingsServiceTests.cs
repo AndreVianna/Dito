@@ -265,6 +265,51 @@ public class SettingsServiceTests {
         persisted!.StoragePath.Should().Be("/custom/storage/path");
     }
 
+    // ========== HasCompletedOnboarding tests ==========
+
+    [Fact]
+    public async Task LoadSettingsAsync_WhenNoSettingsExist_ShouldDefaultHasCompletedOnboardingToFalse() {
+        await using var connection = CreateConnection();
+        EnsureDatabase(connection);
+
+        var service = new SettingsService(() => CreateContext(connection));
+        var settings = await service.LoadSettingsAsync();
+
+        settings.HasCompletedOnboarding.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task SaveSettingsAsync_WithHasCompletedOnboarding_ShouldPersist() {
+        await using var connection = CreateConnection();
+        EnsureDatabase(connection);
+
+        var service = new SettingsService(() => CreateContext(connection));
+        var settings = await service.LoadSettingsAsync();
+
+        settings.HasCompletedOnboarding = true;
+        await service.SaveSettingsAsync(settings);
+
+        // Verify via a fresh context
+        await using var verifyContext = CreateContext(connection);
+        var persisted = await verifyContext.Settings.FirstOrDefaultAsync();
+        persisted.Should().NotBeNull();
+        persisted!.HasCompletedOnboarding.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task SaveSettingsAsync_HasCompletedOnboarding_ShouldUpdateCurrent() {
+        await using var connection = CreateConnection();
+        EnsureDatabase(connection);
+
+        var service = new SettingsService(() => CreateContext(connection));
+        var settings = await service.LoadSettingsAsync();
+
+        settings.HasCompletedOnboarding = true;
+        await service.SaveSettingsAsync(settings);
+
+        service.Current!.HasCompletedOnboarding.Should().BeTrue();
+    }
+
     // ========== Helper methods ==========
 
     private static SqliteConnection CreateConnection() {

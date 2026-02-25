@@ -206,7 +206,7 @@ public sealed partial class GlobalHotkeyService : IHotkeyService {
         [return: MarshalAs(UnmanagedType.Bool)]
         public static partial bool DispatchMessage(ref MSG lpmsg);
 
-        [LibraryImport("user32.dll")]
+        [LibraryImport("user32.dll", EntryPoint = "PostThreadMessageW")]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static partial bool PostThreadMessage(uint idThread, uint msg, nint wParam, nint lParam);
     }

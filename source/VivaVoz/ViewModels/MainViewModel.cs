@@ -11,6 +11,7 @@ public partial class MainViewModel : ObservableObject {
     private readonly IExportService _exportService;
     private readonly INotificationService _notificationService;
     private readonly ICrashRecoveryService? _crashRecoveryService;
+    private readonly ITrayIconService? _trayIconService;
     public AudioPlayerViewModel AudioPlayer { get; }
     public RecordingDetailViewModel Detail { get; }
 
@@ -111,7 +112,8 @@ public partial class MainViewModel : ObservableObject {
         IDialogService? dialogService = null,
         IExportService? exportService = null,
         ICrashRecoveryService? crashRecoveryService = null,
-        INotificationService? notificationService = null) {
+        INotificationService? notificationService = null,
+        ITrayIconService? trayIconService = null) {
         _recorder = recorder ?? throw new ArgumentNullException(nameof(recorder));
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _transcriptionManager = transcriptionManager ?? throw new ArgumentNullException(nameof(transcriptionManager));
@@ -122,6 +124,7 @@ public partial class MainViewModel : ObservableObject {
         _exportService = exportService ?? new ExportService();
         _notificationService = notificationService ?? new NotificationService();
         _crashRecoveryService = crashRecoveryService;
+        _trayIconService = trayIconService;
         AudioPlayer = new AudioPlayerViewModel(audioPlayer ?? throw new ArgumentNullException(nameof(audioPlayer)));
         Detail = new RecordingDetailViewModel(
             recordingService ?? new RecordingService(() => new AppDbContext()),
@@ -182,8 +185,10 @@ public partial class MainViewModel : ObservableObject {
         try {
             _recorder.StartRecording();
             IsRecording = _recorder.IsRecording;
+            _trayIconService?.SetState(AppState.Recording);
         }
         catch (MicrophoneNotFoundException ex) {
+            _trayIconService?.SetState(AppState.Idle);
             _ = _notificationService.ShowWarningAsync(ex.Message);
         }
     }
@@ -192,6 +197,7 @@ public partial class MainViewModel : ObservableObject {
     private void StopRecording() {
         _recorder.StopRecording();
         IsRecording = _recorder.IsRecording;
+        _trayIconService?.SetState(AppState.Transcribing);
     }
 
     [RelayCommand]
@@ -419,6 +425,39 @@ public partial class MainViewModel : ObservableObject {
         _transcriptionManager.EnqueueTranscription(recording.Id, e.FilePath);
     });
 
+    /// <summary>
+    /// Updates the tray icon state after transcription.
+    /// Exposed as <c>internal</c> for unit testing.
+    /// </summary>
+    internal void HandleTranscriptionReadyForTray(bool success) {
+        if (success) {
+            _trayIconService?.SetStateTemporary(AppState.Ready, TimeSpan.FromSeconds(3));
+        }
+        else {
+            _trayIconService?.SetState(AppState.Idle);
+        }
+    }
+
+    /// <summary>
+    /// Copies the transcript to the system clipboard if
+    /// <c>Settings.AutoCopyToClipboard</c> is <c>true</c> and the transcript is
+    /// non-empty.  Clipboard failures are swallowed so they never crash the app.
+    /// Exposed as <c>internal</c> for unit testing.
+    /// </summary>
+    internal async Task TryCopyTranscriptToClipboardAsync(string? transcript) {
+        if (!(_settingsService.Current?.AutoCopyToClipboard ?? true))
+            return;
+        if (string.IsNullOrEmpty(transcript))
+            return;
+        try {
+            await _clipboardService.SetTextAsync(transcript);
+            Log.Information("[MainViewModel] Transcript auto-copied to clipboard.");
+        }
+        catch (Exception ex) {
+            Log.Warning(ex, "[MainViewModel] Auto-copy to clipboard failed.");
+        }
+    }
+
     [ExcludeFromCodeCoverage]
     private void OnTranscriptionCompleted(object? sender, TranscriptionCompletedEventArgs e)
         => Dispatcher.UIThread.Post(() => {
@@ -432,6 +471,7 @@ public partial class MainViewModel : ObservableObject {
                 recording.Language = e.DetectedLanguage ?? recording.Language;
                 recording.LanguageCode = e.DetectedLanguage ?? "unknown";
                 recording.WhisperModel = e.ModelUsed ?? recording.WhisperModel;
+                _ = TryCopyTranscriptToClipboardAsync(e.Transcript);
             }
             else {
                 recording.Status = RecordingStatus.Failed;
@@ -440,6 +480,7 @@ public partial class MainViewModel : ObservableObject {
             }
 
             recording.UpdatedAt = DateTime.UtcNow;
+            HandleTranscriptionReadyForTray(e.Success);
 
             // Recording implements INPC, so list item bindings (Transcript, Status) auto-update.
             // Notify ViewModel computed properties if this is the currently selected recording.

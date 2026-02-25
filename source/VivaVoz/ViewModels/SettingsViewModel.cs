@@ -58,6 +58,9 @@ public partial class SettingsViewModel : ObservableObject {
     public partial string RecordingMode { get; set; }
 
     [ObservableProperty]
+    public partial bool AutoCopyToClipboard { get; set; }
+
+    [ObservableProperty]
     public partial bool IsListeningForHotkey { get; set; }
 
     public string HotkeyDisplayText => IsListeningForHotkey
@@ -85,6 +88,7 @@ public partial class SettingsViewModel : ObservableObject {
         MinimizeToTray = _settings.MinimizeToTray;
         HotkeyConfig = _settings.HotkeyConfig;
         RecordingMode = _settings.RecordingMode;
+        AutoCopyToClipboard = _settings.AutoCopyToClipboard;
 
         AvailableDevices = recorder.GetAvailableDevices();
 
@@ -121,6 +125,7 @@ public partial class SettingsViewModel : ObservableObject {
         OnPropertyChanged(nameof(HotkeyDisplayText));
     }
     partial void OnRecordingModeChanged(string value) => SaveSetting(s => s.RecordingMode = value);
+    partial void OnAutoCopyToClipboardChanged(bool value) => SaveSetting(s => s.AutoCopyToClipboard = value);
     partial void OnIsListeningForHotkeyChanged(bool value) => OnPropertyChanged(nameof(HotkeyDisplayText));
 
     [RelayCommand]

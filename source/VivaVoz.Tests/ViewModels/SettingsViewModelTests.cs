@@ -517,6 +517,27 @@ public class SettingsViewModelTests {
         vm.Models.First(m => m.ModelId == "tiny").IsSelected.Should().BeFalse();
     }
 
+    // ========== AutoCopyToClipboard ==========
+
+    [Fact]
+    public void Constructor_ShouldInitializeAutoCopyToClipboardFromSettings() {
+        var (service, recorder, modelManager, themeService) = CreateDependencies(s => s.AutoCopyToClipboard = false);
+
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
+
+        vm.AutoCopyToClipboard.Should().BeFalse();
+    }
+
+    [Fact]
+    public void AutoCopyToClipboard_WhenChanged_ShouldCallSaveSettings() {
+        var (service, recorder, modelManager, themeService) = CreateDependencies(s => s.AutoCopyToClipboard = true);
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService) {
+            AutoCopyToClipboard = false
+        };
+
+        service.Received(1).SaveSettingsAsync(Arg.Is<Settings>(s => !s.AutoCopyToClipboard));
+    }
+
     // ========== Language options ==========
 
     [Fact]

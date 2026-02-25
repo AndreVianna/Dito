@@ -73,11 +73,6 @@
         <StackPanel Spacing="8"
                     IsVisible="{Binding ShowTranscriptSection}">
           <StackPanel Orientation="Horizontal" Spacing="8">
-            <TextBlock Text="Transcript"
-                       FontSize="12"
-                       Opacity="0.7"
-                       VerticalAlignment="Center" />
-            <!-- Transcribing indicator (animated dots via ProgressBar) -->
             <ProgressBar IsIndeterminate="True"
                          IsVisible="{Binding IsTranscribing}"
                          Width="80"
@@ -108,7 +103,7 @@
                       SelectedItem="{Binding SelectedRetranscribeModel}"
                       IsVisible="{Binding CanRetranscribe}"
                       FontSize="12"
-                      Padding="4,2"
+                      Padding="4,0"
                       VerticalAlignment="Center"
                       ToolTip.Tip="Model to use for (re-)transcription">
                 <ComboBox.ItemTemplate>

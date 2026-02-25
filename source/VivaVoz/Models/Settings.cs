@@ -3,7 +3,7 @@ namespace VivaVoz.Models;
 public class Settings {
     public int Id { get; set; }
     public string HotkeyConfig { get; set; } = string.Empty;
-    public string WhisperModelSize { get; set; } = "tiny";
+    public string WhisperModelSize { get; set; } = "base";
     public string? AudioInputDevice { get; set; }
     public string StoragePath { get; set; } = GetDefaultStoragePath();
     public string Theme { get; set; } = "System";
@@ -16,6 +16,7 @@ public class Settings {
     public int? OverlayX { get; set; }
     public int? OverlayY { get; set; }
     public bool AutoCopyToClipboard { get; set; } = true;
+    public bool HasCompletedOnboarding { get; set; } = false;
 
     private static string GetDefaultStoragePath() {
         var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);

@@ -8,10 +8,10 @@ namespace VivaVoz.Tests.Models;
 
 public class SettingsTests {
     [Fact]
-    public void NewSettings_ShouldDefaultWhisperModelSizeToTiny() {
+    public void NewSettings_ShouldDefaultWhisperModelSizeToBase() {
         var settings = new Settings();
 
-        settings.WhisperModelSize.Should().Be("tiny");
+        settings.WhisperModelSize.Should().Be("base");
     }
 
     [Fact]
@@ -68,5 +68,21 @@ public class SettingsTests {
         var settings = new Settings();
 
         settings.AutoCopyToClipboard.Should().BeTrue();
+    }
+
+    [Fact]
+    public void NewSettings_ShouldDefaultHasCompletedOnboardingToFalse() {
+        var settings = new Settings();
+
+        settings.HasCompletedOnboarding.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Settings_HasCompletedOnboarding_CanBeSetToTrue() {
+        var settings = new Settings();
+
+        settings.HasCompletedOnboarding = true;
+
+        settings.HasCompletedOnboarding.Should().BeTrue();
     }
 }

@@ -67,7 +67,7 @@ public sealed class AppDbContext : DbContext {
             .IsRequired();
         settings.Property(s => s.WhisperModelSize)
             .IsRequired()
-            .HasDefaultValue("tiny");
+            .HasDefaultValue("base");
         settings.Property(s => s.AudioInputDevice);
         settings.Property(s => s.StoragePath)
             .IsRequired();
@@ -95,5 +95,8 @@ public sealed class AppDbContext : DbContext {
         settings.Property(s => s.AutoCopyToClipboard)
             .IsRequired()
             .HasDefaultValue(true);
+        settings.Property(s => s.HasCompletedOnboarding)
+            .IsRequired()
+            .HasDefaultValue(false);
     }
 }

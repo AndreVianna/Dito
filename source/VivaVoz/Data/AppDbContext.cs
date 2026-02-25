@@ -95,5 +95,8 @@ public sealed class AppDbContext : DbContext {
         settings.Property(s => s.AutoCopyToClipboard)
             .IsRequired()
             .HasDefaultValue(true);
+        settings.Property(s => s.HasCompletedOnboarding)
+            .IsRequired()
+            .HasDefaultValue(false);
     }
 }

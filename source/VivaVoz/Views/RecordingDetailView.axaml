@@ -104,7 +104,19 @@
                     FontSize="12"
                     Padding="8,2"
                     VerticalAlignment="Center" />
-            <!-- Re-Transcribe model picker -->
+            <!-- (Re-)Transcribe button -->
+            <Button Command="{Binding RetranscribeCommand}"
+                    Content="{Binding RetranscribeButtonLabel}"
+                    IsVisible="{Binding CanRetranscribe}"
+                    FontSize="12"
+                    Padding="8,2"
+                    VerticalAlignment="Center" />
+            <!-- "with [Model ▾]" picker -->
+            <TextBlock Text="with"
+                       FontSize="12"
+                       Opacity="0.6"
+                       VerticalAlignment="Center"
+                       IsVisible="{Binding CanRetranscribe}" />
             <ComboBox ItemsSource="{Binding InstalledModelIds}"
                       SelectedItem="{Binding SelectedRetranscribeModel}"
                       IsVisible="{Binding CanRetranscribe}"
@@ -118,13 +130,6 @@
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
-            <!-- (Re-)Transcribe button -->
-            <Button Command="{Binding RetranscribeCommand}"
-                    Content="{Binding RetranscribeButtonLabel}"
-                    IsVisible="{Binding CanRetranscribe}"
-                    FontSize="12"
-                    Padding="8,2"
-                    VerticalAlignment="Center" />
             <!-- Transcribed-with badge -->
             <TextBlock Text="{Binding TranscribedWithInfo}"
                        FontSize="11"

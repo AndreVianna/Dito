@@ -16,6 +16,7 @@ public class Settings {
     public int? OverlayX { get; set; }
     public int? OverlayY { get; set; }
     public bool AutoCopyToClipboard { get; set; } = true;
+    public bool HasCompletedOnboarding { get; set; } = false;
 
     private static string GetDefaultStoragePath() {
         var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);

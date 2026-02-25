@@ -9,19 +9,18 @@ namespace VivaVoz.Services;
 /// coupling this class to Avalonia.
 /// </para>
 /// </summary>
-public sealed class TrayIconService : ITrayIconService {
-    private readonly Action<AppState>? _onStateChanged;
+/// <remarks>
+/// Initializes a new instance of the <see cref="TrayIconService"/> class.
+/// </remarks>
+/// <param name="onStateChanged">
+/// Optional callback invoked every time the state changes.
+/// Called on the same thread that called <see cref="SetState"/> or
+/// <see cref="SetStateTemporary"/>; for the revert call it is invoked on a
+/// thread-pool thread.
+/// </param>
+public sealed class TrayIconService(Action<AppState>? onStateChanged = null) : ITrayIconService {
+    private readonly Action<AppState>? _onStateChanged = onStateChanged;
     private CancellationTokenSource? _revertCts;
-
-    /// <param name="onStateChanged">
-    /// Optional callback invoked every time the state changes.
-    /// Called on the same thread that called <see cref="SetState"/> or
-    /// <see cref="SetStateTemporary"/>; for the revert call it is invoked on a
-    /// thread-pool thread.
-    /// </param>
-    public TrayIconService(Action<AppState>? onStateChanged = null) {
-        _onStateChanged = onStateChanged;
-    }
 
     /// <inheritdoc/>
     public AppState CurrentState { get; private set; } = AppState.Idle;

@@ -8,7 +8,8 @@ public static class LanguageHelper {
             return "Auto-detected";
         try {
             return CultureInfo.GetCultureInfo(isoCode).EnglishName;
-        } catch {
+        }
+        catch {
             return isoCode;
         }
     }

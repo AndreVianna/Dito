@@ -509,9 +509,9 @@ public class SettingsViewModelTests {
     public void WhisperModelSize_WhenChanged_ShouldUpdateModelSelection() {
         var (service, recorder, modelManager, themeService) = CreateDependencies(s => s.WhisperModelSize = "tiny");
         modelManager.GetAvailableModelIds().Returns(["tiny", "base"]);
-        var vm = new SettingsViewModel(service, recorder, modelManager, themeService);
-
-        vm.WhisperModelSize = "base";
+        var vm = new SettingsViewModel(service, recorder, modelManager, themeService) {
+            WhisperModelSize = "base"
+        };
 
         vm.Models.First(m => m.ModelId == "base").IsSelected.Should().BeTrue();
         vm.Models.First(m => m.ModelId == "tiny").IsSelected.Should().BeFalse();

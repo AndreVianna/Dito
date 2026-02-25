@@ -18,10 +18,10 @@ public class TrayService(
     private WindowIcon? _readyIcon;
     private CancellationTokenSource? _revertCts;
 
-    private const string IdleIconUri        = "avares://VivaVoz/Assets/TrayIcons/tray-idle.ico";
-    private const string RecordingIconUri   = "avares://VivaVoz/Assets/TrayIcons/tray-recording.ico";
+    private const string IdleIconUri = "avares://VivaVoz/Assets/TrayIcons/tray-idle.ico";
+    private const string RecordingIconUri = "avares://VivaVoz/Assets/TrayIcons/tray-recording.ico";
     private const string TranscribingIconUri = "avares://VivaVoz/Assets/TrayIcons/tray-transcribing.ico";
-    private const string ReadyIconUri       = "avares://VivaVoz/Assets/TrayIcons/tray-ready.ico";
+    private const string ReadyIconUri = "avares://VivaVoz/Assets/TrayIcons/tray-ready.ico";
 
     /// <summary>
     /// The current tray icon state. Exposed as <c>internal</c> for unit testing.
@@ -35,10 +35,10 @@ public class TrayService(
 
     [ExcludeFromCodeCoverage(Justification = "Requires Avalonia platform and AssetLoader at runtime.")]
     public void Initialize() {
-        _idleIcon        = LoadIcon(IdleIconUri);
-        _recordingIcon   = LoadIcon(RecordingIconUri);
+        _idleIcon = LoadIcon(IdleIconUri);
+        _recordingIcon = LoadIcon(RecordingIconUri);
         _transcribingIcon = LoadIcon(TranscribingIconUri);
-        _readyIcon       = LoadIcon(ReadyIconUri);
+        _readyIcon = LoadIcon(ReadyIconUri);
 
         _toggleRecordingItem = new NativeMenuItem { Header = "Start Recording" };
         _toggleRecordingItem.Click += OnToggleRecordingClicked;
@@ -233,10 +233,10 @@ public class TrayService(
             return;
 
         _trayIcon.Icon = state switch {
-            TrayIconState.Recording    => _recordingIcon,
+            TrayIconState.Recording => _recordingIcon,
             TrayIconState.Transcribing => _transcribingIcon,
-            TrayIconState.Ready        => _readyIcon,
-            _                          => _idleIcon,
+            TrayIconState.Ready => _readyIcon,
+            _ => _idleIcon,
         };
         _trayIcon.ToolTipText = GetTooltipForState(state);
 
@@ -271,9 +271,9 @@ public class TrayService(
             : transcript.Length <= 30 ? $"VivaVoz — {transcript}" : $"VivaVoz — {transcript[..30]}...";
 
     public static string GetTooltipForState(TrayIconState state) => state switch {
-        TrayIconState.Recording    => "VivaVoz — Recording...",
+        TrayIconState.Recording => "VivaVoz — Recording...",
         TrayIconState.Transcribing => "VivaVoz — Transcribing...",
-        TrayIconState.Ready        => "VivaVoz — Transcript ready!",
-        _                          => "VivaVoz"
+        TrayIconState.Ready => "VivaVoz — Transcript ready!",
+        _ => "VivaVoz"
     };
 }

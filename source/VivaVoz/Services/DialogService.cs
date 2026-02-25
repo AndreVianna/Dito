@@ -1,10 +1,37 @@
+using Avalonia.Platform.Storage;
+
 namespace VivaVoz.Services;
 
 /// <summary>
-/// Avalonia-backed dialog service. Shows a native-style confirmation window.
+/// Avalonia-backed dialog service. Shows native-style confirmation and file-picker dialogs.
 /// </summary>
 [ExcludeFromCodeCoverage]
 public class DialogService : IDialogService {
+    /// <inheritdoc />
+    public async Task<string?> ShowSaveFileDialogAsync(
+        string title,
+        string suggestedFileName,
+        string defaultExtension,
+        string filterName,
+        string[] filterPatterns) {
+        var mainWindow = GetMainWindow();
+        if (mainWindow is null)
+            return null;
+
+        var topLevel = TopLevel.GetTopLevel(mainWindow);
+        if (topLevel is null)
+            return null;
+
+        var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions {
+            Title = title,
+            SuggestedFileName = suggestedFileName,
+            DefaultExtension = defaultExtension,
+            FileTypeChoices = [new FilePickerFileType(filterName) { Patterns = filterPatterns }]
+        });
+
+        return file?.TryGetLocalPath();
+    }
+
     /// <inheritdoc />
     public Task<bool> ShowConfirmAsync(string title, string message) {
         var tcs = new TaskCompletionSource<bool>();
@@ -56,5 +83,11 @@ public class DialogService : IDialogService {
         }
 
         return tcs.Task;
+    }
+
+    private static Window? GetMainWindow() {
+        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            return desktop.MainWindow;
+        return null;
     }
 }

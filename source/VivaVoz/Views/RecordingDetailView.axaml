@@ -42,7 +42,7 @@
           </StackPanel>
           <StackPanel>
             <TextBlock Text="Language" FontSize="12" Opacity="0.7" />
-            <TextBlock Text="{Binding SelectedRecording.LanguageCode}" />
+            <TextBlock Text="{Binding SelectedRecording.LanguageCode, Converter={StaticResource LanguageCodeToName}}" />
           </StackPanel>
         </StackPanel>
 
@@ -86,6 +86,20 @@
             <Button Command="{Binding CopyTranscriptCommand}"
                     Content="{Binding CopyButtonLabel}"
                     IsVisible="{Binding CanCopyTranscript}"
+                    FontSize="12"
+                    Padding="8,2"
+                    VerticalAlignment="Center" />
+            <!-- Export transcript button -->
+            <Button Command="{Binding ExportTextCommand}"
+                    Content="Export Text"
+                    IsVisible="{Binding CanExportText}"
+                    FontSize="12"
+                    Padding="8,2"
+                    VerticalAlignment="Center" />
+            <!-- Export audio button -->
+            <Button Command="{Binding ExportAudioCommand}"
+                    Content="Export Audio"
+                    IsVisible="{Binding HasSelection}"
                     FontSize="12"
                     Padding="8,2"
                     VerticalAlignment="Center" />

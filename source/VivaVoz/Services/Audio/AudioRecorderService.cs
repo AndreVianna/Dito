@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace VivaVoz.Services.Audio;
 
 [ExcludeFromCodeCoverage]
@@ -48,6 +50,7 @@ public sealed class AudioRecorderService : IAudioRecorder {
             IsRecording = true;
 
             Log.Information("[AudioRecorderService] Recording started: {FilePath}", _currentFilePath);
+            WriteRecoveryMarker(_currentFilePath);
             RecordingStarted?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -136,6 +139,8 @@ public sealed class AudioRecorderService : IAudioRecorder {
             IsRecording = false;
         }
 
+        ClearRecoveryMarker();
+
         if (!string.IsNullOrWhiteSpace(filePath)) {
             Log.Information("[AudioRecorderService] Recording stopped: {FilePath} ({Duration})", filePath, duration);
             RecordingStopped?.Invoke(this, new AudioRecordingStoppedEventArgs(filePath, duration));
@@ -156,5 +161,28 @@ public sealed class AudioRecorderService : IAudioRecorder {
 
         var seconds = bytesRecorded / (double)waveFormat.AverageBytesPerSecond;
         return TimeSpan.FromSeconds(seconds);
+    }
+
+    private static void WriteRecoveryMarker(string? filePath) {
+        if (string.IsNullOrWhiteSpace(filePath))
+            return;
+        try {
+            Directory.CreateDirectory(FilePaths.RecoveryDirectory);
+            var json = JsonSerializer.Serialize(new { FilePath = filePath, StartedAt = DateTime.UtcNow });
+            File.WriteAllText(FilePaths.RecoveryMarkerFile, json);
+        }
+        catch (Exception ex) {
+            Log.Warning(ex, "[AudioRecorderService] Failed to write crash recovery marker.");
+        }
+    }
+
+    private static void ClearRecoveryMarker() {
+        try {
+            if (File.Exists(FilePaths.RecoveryMarkerFile))
+                File.Delete(FilePaths.RecoveryMarkerFile);
+        }
+        catch (Exception ex) {
+            Log.Warning(ex, "[AudioRecorderService] Failed to clear crash recovery marker.");
+        }
     }
 }

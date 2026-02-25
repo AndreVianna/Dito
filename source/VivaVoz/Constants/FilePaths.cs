@@ -9,4 +9,6 @@ public static class FilePaths {
     public static readonly string AudioDirectory = Path.Combine(AppDataDirectory, "audio");
     public static readonly string ModelsDirectory = Path.Combine(AppDataDirectory, "models");
     public static readonly string LogsDirectory = Path.Combine(AppDataDirectory, "logs");
+    public static readonly string RecoveryDirectory = Path.Combine(AppDataDirectory, "recovery");
+    public static readonly string RecoveryMarkerFile = Path.Combine(RecoveryDirectory, "in-progress.json");
 }

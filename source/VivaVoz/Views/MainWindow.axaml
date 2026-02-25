@@ -6,25 +6,47 @@
         Height="650"
         Title="VivaVoz"
         Icon="avares://VivaVoz/Assets/vivavoz.ico">
-  <Grid>
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="300" MinWidth="300" />
-      <ColumnDefinition Width="Auto" />
-      <ColumnDefinition Width="*" />
-    </Grid.ColumnDefinitions>
-
-    <Border Grid.Column="0" Padding="16" BorderThickness="0,0,1,0" BorderBrush="#1FFFFFFF">
-      <views:RecordingsListView />
+  <DockPanel>
+    <!-- Crash recovery notification bar -->
+    <Border DockPanel.Dock="Top"
+            IsVisible="{Binding HasOrphanedRecording}"
+            Background="#CC4400"
+            Padding="12,8">
+      <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+        <TextBlock Grid.Column="0"
+                   Text="An unfinished recording was found. Recover it?"
+                   VerticalAlignment="Center" />
+        <Button Grid.Column="1"
+                Content="Recover"
+                Command="{Binding RecoverOrphanCommand}"
+                Padding="10,4" />
+        <Button Grid.Column="2"
+                Content="Dismiss"
+                Command="{Binding DismissOrphanCommand}"
+                Padding="10,4" />
+      </Grid>
     </Border>
 
-    <GridSplitter Grid.Column="1"
-                  Width="6"
-                  ResizeDirection="Columns"
-                  ResizeBehavior="PreviousAndNext"
-                  Background="Transparent" />
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="300" MinWidth="300" />
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
 
-    <Border Grid.Column="2" Padding="16">
-      <views:RecordingDetailView />
-    </Border>
-  </Grid>
+      <Border Grid.Column="0" Padding="16" BorderThickness="0,0,1,0" BorderBrush="#1FFFFFFF">
+        <views:RecordingsListView />
+      </Border>
+
+      <GridSplitter Grid.Column="1"
+                    Width="6"
+                    ResizeDirection="Columns"
+                    ResizeBehavior="PreviousAndNext"
+                    Background="Transparent" />
+
+      <Border Grid.Column="2" Padding="16">
+        <views:RecordingDetailView />
+      </Border>
+    </Grid>
+  </DockPanel>
 </Window>

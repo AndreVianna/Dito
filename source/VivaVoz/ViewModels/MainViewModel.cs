@@ -7,6 +7,10 @@ public partial class MainViewModel : ObservableObject {
     private readonly IClipboardService _clipboardService;
     private readonly ISettingsService _settingsService;
     private readonly IModelManager _modelManager;
+    private readonly IDialogService _dialogService;
+    private readonly IExportService _exportService;
+    private readonly INotificationService _notificationService;
+    private readonly ICrashRecoveryService? _crashRecoveryService;
     public AudioPlayerViewModel AudioPlayer { get; }
     public RecordingDetailViewModel Detail { get; }
 
@@ -33,6 +37,9 @@ public partial class MainViewModel : ObservableObject {
 
     [ObservableProperty]
     public partial string CopyButtonLabel { get; set; } = "Copy";
+
+    [ObservableProperty]
+    public partial bool HasOrphanedRecording { get; set; }
 
     /// <summary>
     /// Computed transcript text for display. Reflects the current recording state:
@@ -101,17 +108,24 @@ public partial class MainViewModel : ObservableObject {
         ISettingsService? settingsService = null,
         IModelManager? modelManager = null,
         IRecordingService? recordingService = null,
-        IDialogService? dialogService = null) {
+        IDialogService? dialogService = null,
+        IExportService? exportService = null,
+        ICrashRecoveryService? crashRecoveryService = null,
+        INotificationService? notificationService = null) {
         _recorder = recorder ?? throw new ArgumentNullException(nameof(recorder));
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _transcriptionManager = transcriptionManager ?? throw new ArgumentNullException(nameof(transcriptionManager));
         _clipboardService = clipboardService ?? throw new ArgumentNullException(nameof(clipboardService));
         _settingsService = settingsService ?? new SettingsService(() => new AppDbContext());
         _modelManager = modelManager ?? new WhisperModelService(new WhisperModelManager(), new System.Net.Http.HttpClient());
+        _dialogService = dialogService ?? new DialogService();
+        _exportService = exportService ?? new ExportService();
+        _notificationService = notificationService ?? new NotificationService();
+        _crashRecoveryService = crashRecoveryService;
         AudioPlayer = new AudioPlayerViewModel(audioPlayer ?? throw new ArgumentNullException(nameof(audioPlayer)));
         Detail = new RecordingDetailViewModel(
             recordingService ?? new RecordingService(() => new AppDbContext()),
-            dialogService ?? new DialogService());
+            _dialogService);
         Detail.RecordingDeleted += OnRecordingDeleted;
 
 #pragma warning disable IDE0305, IDE0028 // Simplify collection initialization
@@ -123,6 +137,7 @@ public partial class MainViewModel : ObservableObject {
         IsRecording = _recorder.IsRecording;
         _recorder.RecordingStopped += OnRecordingStopped;
         _transcriptionManager.TranscriptionCompleted += OnTranscriptionCompleted;
+        HasOrphanedRecording = _crashRecoveryService?.HasOrphan() ?? false;
     }
 
     public bool HasSelection => SelectedRecording is not null;
@@ -130,6 +145,8 @@ public partial class MainViewModel : ObservableObject {
     public bool IsNotRecording => !IsRecording;
     public bool HasSearchText => !string.IsNullOrEmpty(SearchText);
     public bool NoRecordingsFound => HasSearchText && FilteredRecordings.Count == 0;
+    public bool CanExportText => SelectedRecording is { Status: RecordingStatus.Complete, Transcript.Length: > 0 };
+    public bool CanExportAudio => SelectedRecording is not null && !string.IsNullOrEmpty(SelectedRecording.AudioFileName);
 
     partial void OnIsRecordingChanged(bool value) {
         OnPropertyChanged(nameof(IsNotRecording));
@@ -167,7 +184,7 @@ public partial class MainViewModel : ObservableObject {
             IsRecording = _recorder.IsRecording;
         }
         catch (MicrophoneNotFoundException ex) {
-            ShowMicrophoneNotFoundDialog(ex.Message);
+            _ = _notificationService.ShowWarningAsync(ex.Message);
         }
     }
 
@@ -192,6 +209,123 @@ public partial class MainViewModel : ObservableObject {
 
     [RelayCommand]
     private void ClearSelection() => SelectedRecording = null;
+
+    [RelayCommand]
+    private async Task ExportTextAsync() {
+        if (SelectedRecording is not { Status: RecordingStatus.Complete, Transcript.Length: > 0 })
+            return;
+
+        var safeName = MakeSafeFileName(SelectedRecording.Title) + " transcript";
+        var path = await _dialogService.ShowSaveFileDialogAsync(
+            "Export Transcript",
+            safeName,
+            "txt",
+            "Text and Markdown files",
+            ["*.txt", "*.md"]);
+
+        if (path is null)
+            return;
+
+        try {
+            await _exportService.ExportTextAsync(SelectedRecording.Transcript!, path);
+        }
+        catch (Exception ex) {
+            Log.Error(ex, "[MainViewModel] Failed to export transcript to {Path}.", path);
+            var copyToClipboard = await _notificationService.ShowRecoverableErrorAsync(
+                "Export Failed",
+                "Could not save the transcript to the file. Copy to clipboard instead?",
+                "Copy to Clipboard",
+                "Cancel");
+            if (copyToClipboard) {
+                await _clipboardService.SetTextAsync(SelectedRecording.Transcript!);
+            }
+        }
+    }
+
+    [RelayCommand]
+    private async Task ExportAudioAsync() {
+        if (SelectedRecording is null || string.IsNullOrEmpty(SelectedRecording.AudioFileName))
+            return;
+
+        var safeName = MakeSafeFileName(SelectedRecording.Title);
+        var path = await _dialogService.ShowSaveFileDialogAsync(
+            "Export Audio",
+            safeName,
+            "wav",
+            "WAV audio files",
+            ["*.wav"]);
+
+        if (path is null)
+            return;
+
+        var sourcePath = Path.Combine(FilePaths.AudioDirectory, SelectedRecording.AudioFileName);
+        try {
+            await _exportService.ExportAudioAsync(sourcePath, path);
+        }
+        catch (Exception ex) {
+            Log.Error(ex, "[MainViewModel] Failed to export audio to {Path}.", path);
+            await _notificationService.ShowWarningAsync("Could not save the audio file. Please check disk space and permissions.");
+        }
+    }
+
+    [RelayCommand]
+    internal void DismissOrphan() {
+        _crashRecoveryService?.Dismiss();
+        HasOrphanedRecording = false;
+    }
+
+    [RelayCommand]
+    internal void RecoverOrphan() {
+        var orphanPath = _crashRecoveryService?.GetOrphanPath();
+        if (string.IsNullOrEmpty(orphanPath) || !File.Exists(orphanPath)) {
+            _crashRecoveryService?.Dismiss();
+            HasOrphanedRecording = false;
+            return;
+        }
+
+        var now = DateTime.Now;
+        var audioFileName = GetRelativeAudioPath(orphanPath);
+        var fileSize = GetFileSize(orphanPath);
+        var duration = EstimateDuration(fileSize);
+
+        var recording = new Recording {
+            Id = Guid.NewGuid(),
+            Title = $"Recovered Recording {now:MMM dd, yyyy HH:mm}",
+            AudioFileName = audioFileName,
+            Transcript = null,
+            Status = RecordingStatus.PendingTranscription,
+            Language = _settingsService.Current?.Language ?? "auto",
+            Duration = duration,
+            CreatedAt = now,
+            UpdatedAt = now,
+            WhisperModel = _settingsService.Current?.WhisperModelSize ?? "tiny",
+            FileSize = fileSize
+        };
+
+        _dbContext.Recordings.Add(recording);
+        _dbContext.SaveChanges();
+
+        Recordings.Insert(0, recording);
+        ApplyFilter();
+
+        _transcriptionManager.EnqueueTranscription(recording.Id, orphanPath);
+
+        _crashRecoveryService?.Dismiss();
+        HasOrphanedRecording = false;
+    }
+
+    private static string MakeSafeFileName(string name) {
+        var invalid = Path.GetInvalidFileNameChars();
+        return string.Concat(name.Select(c => invalid.Contains(c) ? '_' : c));
+    }
+
+    private static TimeSpan EstimateDuration(long fileSize) {
+        // 16kHz, 16-bit, mono PCM: 32000 bytes/sec, 44-byte WAV header
+        const int bytesPerSecond = 32000;
+        const int wavHeaderSize = 44;
+        var audioBytes = Math.Max(0, fileSize - wavHeaderSize);
+        return TimeSpan.FromSeconds(audioBytes / (double)bytesPerSecond);
+    }
 
     [RelayCommand]
     private void Retranscribe() {
@@ -244,6 +378,8 @@ public partial class MainViewModel : ObservableObject {
         OnPropertyChanged(nameof(CanCopyTranscript));
         OnPropertyChanged(nameof(CanRetranscribe));
         OnPropertyChanged(nameof(RetranscribeButtonLabel));
+        OnPropertyChanged(nameof(CanExportText));
+        OnPropertyChanged(nameof(CanExportAudio));
         CopyButtonLabel = "Copy";
     }
 
@@ -299,6 +435,8 @@ public partial class MainViewModel : ObservableObject {
             }
             else {
                 recording.Status = RecordingStatus.Failed;
+                _ = _notificationService.ShowWarningAsync(
+                    $"Transcription failed: {e.ErrorMessage ?? "Unknown error."}");
             }
 
             recording.UpdatedAt = DateTime.UtcNow;
@@ -347,32 +485,5 @@ public partial class MainViewModel : ObservableObject {
         }
 
         settingsWindow.Show();
-    }
-
-    [ExcludeFromCodeCoverage]
-    private static void ShowMicrophoneNotFoundDialog(string message) {
-        var text = string.IsNullOrWhiteSpace(message)
-            ? "No microphone device detected."
-            : message;
-
-        var window = new Window {
-            Title = "Microphone not found",
-            SizeToContent = SizeToContent.WidthAndHeight,
-            WindowStartupLocation = WindowStartupLocation.CenterOwner,
-            CanResize = false,
-            Content = new TextBlock {
-                Text = text,
-                Margin = new Thickness(24),
-                TextWrapping = Avalonia.Media.TextWrapping.Wrap
-            }
-        };
-
-        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
-            && desktop.MainWindow is not null) {
-            window.ShowDialog(desktop.MainWindow);
-            return;
-        }
-
-        window.Show();
     }
 }

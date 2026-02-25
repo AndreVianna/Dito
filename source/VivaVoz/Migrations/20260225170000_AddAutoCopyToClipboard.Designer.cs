@@ -94,12 +94,6 @@ namespace VivaVoz.Migrations
                         .HasColumnType("INTEGER")
                         .HasDefaultValue(false);
 
-                    b.Property<string>("ExportFormat")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT")
-                        .HasDefaultValue("MP3");
-
                     b.Property<string>("HotkeyConfig")
                         .IsRequired()
                         .HasColumnType("TEXT");

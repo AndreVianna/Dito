@@ -30,8 +30,22 @@ public partial class App : Application {
         hotkeyService.TryRegister(parsedHotkey ?? HotkeyConfig.Default, settingsService.Current?.RecordingMode ?? "Toggle");
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+            // Create TrayIconService with a deferred callback to TrayService (assigned below).
+            // The callback maps AppState → TrayIconState so MainViewModel state transitions
+            // drive the actual tray icon without coupling the ViewModel to Avalonia.
+            ITrayService? trayService = null;
+            var trayIconService = new TrayIconService(appState => {
+                if (trayService is null) return;
+                trayService.SetState(appState switch {
+                    AppState.Recording => TrayIconState.Recording,
+                    AppState.Transcribing => TrayIconState.Transcribing,
+                    AppState.Ready => TrayIconState.Ready,
+                    _ => TrayIconState.Idle,
+                });
+            });
+
             var mainWindow = new MainWindow(settingsService) {
-                DataContext = new MainViewModel(recorderService, audioPlayerService, dbContext, transcriptionManager, clipboardService, settingsService, modelService, recordingService, dialogService, exportService, crashRecoveryService, notificationService, hotkeyService: hotkeyService)
+                DataContext = new MainViewModel(recorderService, audioPlayerService, dbContext, transcriptionManager, clipboardService, settingsService, modelService, recordingService, dialogService, exportService, crashRecoveryService, notificationService, trayIconService: trayIconService, hotkeyService: hotkeyService)
             };
 
             var overlayViewModel = new RecordingOverlayViewModel(recorderService);
@@ -46,7 +60,7 @@ public partial class App : Application {
                     overlayWindow.Hide();
             };
 
-            var trayService = new TrayService(desktop, recorderService, transcriptionManager);
+            trayService = new TrayService(desktop, recorderService, transcriptionManager);
             trayService.Initialize();
 
             desktop.MainWindow = mainWindow;
@@ -56,7 +70,7 @@ public partial class App : Application {
             }
 
             desktop.ShutdownRequested += (_, _) => {
-                trayService.Dispose();
+                trayService?.Dispose();
                 hotkeyService.Dispose();
             };
         }

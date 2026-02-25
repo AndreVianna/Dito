@@ -59,6 +59,12 @@ public sealed class TrayIconService(Action<AppState>? onStateChanged = null) : I
     private async Task RevertToIdleAsync(TimeSpan duration, CancellationToken token) {
         try {
             await Task.Delay(duration, token);
+            // Dispose the CTS only if it hasn't been replaced by a newer call.
+            if (_revertCts?.Token == token) {
+                var cts = _revertCts;
+                _revertCts = null;
+                cts?.Dispose();
+            }
             ApplyState(AppState.Idle);
         }
         catch (OperationCanceledException) {

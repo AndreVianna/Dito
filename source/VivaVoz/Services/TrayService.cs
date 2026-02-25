@@ -232,7 +232,14 @@ public class TrayService(
         if (_trayIcon is null)
             return;
 
-        _trayIcon.Icon = state switch {
+        // Avalonia UI mutations must happen on the UI thread.
+        // Post is safe to call from any thread; if we're already on the UI thread this is a no-op queue.
+        Avalonia.Threading.Dispatcher.UIThread.Post(() => ApplyTrayIconUI(state));
+    }
+
+    [ExcludeFromCodeCoverage(Justification = "Requires live Avalonia TrayIcon and NativeMenu at runtime.")]
+    private void ApplyTrayIconUI(TrayIconState state) {
+        _trayIcon!.Icon = state switch {
             TrayIconState.Recording => _recordingIcon,
             TrayIconState.Transcribing => _transcribingIcon,
             TrayIconState.Ready => _readyIcon,
@@ -257,6 +264,14 @@ public class TrayService(
     private async Task RevertToIdleAsync(TimeSpan duration, CancellationToken token) {
         try {
             await Task.Delay(duration, token);
+            // Dispose the CTS only if it hasn't been replaced by a newer call.
+            if (_revertCts?.Token == token) {
+                var cts = _revertCts;
+                _revertCts = null;
+                cts?.Dispose();
+            }
+            // ApplyState updates CurrentState on this thread-pool thread, then
+            // dispatches Avalonia UI mutations to the UI thread internally.
             ApplyState(TrayIconState.Idle);
         }
         catch (OperationCanceledException) {

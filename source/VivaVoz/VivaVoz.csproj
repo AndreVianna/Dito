@@ -28,6 +28,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Assets\Store\**\*.png" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Package.appxmanifest" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Avalonia" Version="*" />
     <PackageReference Include="Avalonia.Desktop" Version="*" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="*" />

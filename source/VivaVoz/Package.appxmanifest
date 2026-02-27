@@ -7,7 +7,7 @@
 
   <Identity Name="Casulo.VivaVoz"
             Publisher="CN=7DEC6B4A-E655-4D53-AD68-AC2EE7AFDA7F"
-            Version="1.0.0.0"
+            Version="1.0.1.0"
             ProcessorArchitecture="x64" />
 
   <mp:PhoneIdentity PhoneProductId="00000000-0000-0000-0000-000000000000"
